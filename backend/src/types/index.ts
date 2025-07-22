@@ -54,3 +54,13 @@ export interface WeatherAlert {
   validUntil?: Date;
   area: string;
 }
+
+// バリデーション関数をエクスポート
+export {
+  ValidationError,
+  validateCoordinates,
+  validateHazardInfo,
+  validateShelter,
+  validateDisasterEvent,
+  validateWeatherAlert
+} from './validation';
