@@ -50,4 +50,5 @@ export interface WeatherAlert {
     validUntil?: Date;
     area: string;
 }
+export { ValidationError, validateCoordinates, validateHazardInfo, validateShelter, validateDisasterEvent, validateWeatherAlert } from './validation';
 //# sourceMappingURL=index.d.ts.map

@@ -6,3 +6,9 @@ export {
   SuumoParsingError,
   GeolocationError
 } from './LocationService';
+
+export {
+  DisasterInfoService,
+  IDisasterInfoService,
+  ExternalAPIError
+} from './DisasterInfoService';
