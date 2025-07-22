@@ -103,5 +103,25 @@ export declare class DisasterInfoService implements IDisasterInfoService {
      * 大規模盛土造成地リスクの説明文を生成
      */
     private getLargeScaleFillDescription;
+    /**
+     * 指定座標周辺の避難所情報を生成
+     */
+    private generateNearbyEvacuationShelters;
+    /**
+     * 2点間の距離を計算（ハーバーサイン公式）
+     */
+    private calculateDistance;
+    /**
+     * 度をラジアンに変換
+     */
+    private toRadians;
+    /**
+     * 避難所の収容人数を生成
+     */
+    private generateCapacity;
+    /**
+     * 住所を生成（実際の実装では逆ジオコーディングAPIを使用）
+     */
+    private generateAddress;
 }
 //# sourceMappingURL=DisasterInfoService.d.ts.map
