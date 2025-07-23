@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import { errorHandler, notFoundHandler } from './errors';
+import locationRoutes from './routes/locationRoutes';
+import disasterInfoRoutes from './routes/disasterInfoRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -13,6 +15,10 @@ app.use(express.json());
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
+
+// API routes
+app.use('/api/location', locationRoutes);
+app.use('/api/disaster-info', disasterInfoRoutes);
 
 // 404 handler (must be after all routes)
 app.use(notFoundHandler);

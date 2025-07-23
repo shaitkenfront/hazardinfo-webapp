@@ -210,7 +210,8 @@ export class SuumoUrlValidator {
     /\/ikkodate\/chuko\/ichiran\/TA13/,    // 中古一戸建て
     /\/chintai\/jnc_/,                    // 賃貸物件詳細
     /\/ms\/shinchiku\/ichiran/,           // 新築マンション一覧
-    /\/ikkodate\/shinchiku\/ichiran/      // 新築一戸建て一覧
+    /\/ikkodate\/shinchiku\/ichiran/,     // 新築一戸建て一覧
+    /\/chintai\/[a-zA-Z0-9_]+/            // 賃貸物件（地域別）
   ];
 
   /**
@@ -309,4 +310,99 @@ export class SuumoUrlValidator {
       return null;
     }
   }
+}
+
+/**
+ * 位置情報解決APIのリクエストバリデーション結果
+ */
+export interface LocationInputValidationResult {
+  isValid: boolean;
+  errors: string[];
+}
+
+/**
+ * 位置情報解決APIのリクエストボディ型定義
+ */
+export interface LocationResolveRequest {
+  type: 'address' | 'coordinates' | 'suumo' | 'geolocation';
+  address?: string;
+  latitude?: string | number;
+  longitude?: string | number;
+  url?: string;
+}
+
+/**
+ * 位置情報解決APIのリクエストをバリデーション
+ */
+export function validateLocationInput(request: LocationResolveRequest): LocationInputValidationResult {
+  const errors: string[] = [];
+
+  // typeフィールドの必須チェック
+  if (!request.type) {
+    errors.push('typeフィールドは必須です');
+    return { isValid: false, errors };
+  }
+
+  // 有効なtypeかチェック
+  const validTypes = ['address', 'coordinates', 'suumo', 'geolocation'];
+  if (!validTypes.includes(request.type)) {
+    errors.push('typeは address, coordinates, suumo, geolocation のいずれかである必要があります');
+    return { isValid: false, errors };
+  }
+
+  // タイプ別のバリデーション
+  try {
+    switch (request.type) {
+      case 'address':
+        if (!request.address) {
+          errors.push('addressフィールドは必須です');
+        } else {
+          AddressValidator.validate(request.address);
+        }
+        break;
+
+      case 'coordinates':
+        if (request.latitude === undefined || request.longitude === undefined) {
+          errors.push('latitudeとlongitudeフィールドは必須です');
+        } else {
+          CoordinatesValidator.validate(String(request.latitude), String(request.longitude));
+        }
+        break;
+
+      case 'suumo':
+        if (!request.url) {
+          errors.push('urlフィールドは必須です');
+        } else {
+          SuumoUrlValidator.validate(request.url);
+        }
+        break;
+
+      case 'geolocation':
+        if (request.latitude === undefined || request.longitude === undefined) {
+          errors.push('現在地取得にはlatitudeとlongitudeフィールドが必須です');
+        } else {
+          // 数値型チェック
+          const lat = Number(request.latitude);
+          const lng = Number(request.longitude);
+          
+          if (isNaN(lat) || isNaN(lng)) {
+            errors.push('緯度と経度は数値である必要があります');
+          } else {
+            CoordinatesValidator.validate(String(lat), String(lng));
+          }
+        }
+        break;
+    }
+  } catch (error) {
+    if (error instanceof InputValidationError) {
+      errors.push(error.message);
+    } else {
+      errors.push('バリデーションエラーが発生しました');
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
 }
