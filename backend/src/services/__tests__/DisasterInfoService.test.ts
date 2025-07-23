@@ -338,15 +338,274 @@ describe('DisasterInfoService', () => {
   });
 
   describe('getDisasterHistory', () => {
-    it('should return empty array for basic implementation', async () => {
+    it('should return array of disaster events', async () => {
       const result = await service.getDisasterHistory(mockCoordinates);
-      expect(result).toEqual([]);
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBeLessThanOrEqual(50); // Maximum 50 events
+    });
+
+    it('should return disaster events with all required properties', async () => {
+      const result = await service.getDisasterHistory(mockCoordinates);
+      
+      result.forEach(event => {
+        expect(event).toHaveProperty('type');
+        expect(event).toHaveProperty('date');
+        expect(event).toHaveProperty('description');
+        expect(event).toHaveProperty('severity');
+        expect(event).toHaveProperty('source');
+        
+        expect(typeof event.type).toBe('string');
+        expect(event.date).toBeInstanceOf(Date);
+        expect(typeof event.description).toBe('string');
+        expect(typeof event.severity).toBe('string');
+        expect(typeof event.source).toBe('string');
+        
+        expect(event.type.length).toBeGreaterThan(0);
+        expect(event.description.length).toBeGreaterThan(0);
+        expect(event.severity.length).toBeGreaterThan(0);
+        expect(event.source.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('should return events sorted by date (newest first)', async () => {
+      const result = await service.getDisasterHistory(mockCoordinates);
+      
+      if (result.length > 1) {
+        for (let i = 1; i < result.length; i++) {
+          expect(result[i].date.getTime()).toBeLessThanOrEqual(result[i - 1].date.getTime());
+        }
+      }
+    });
+
+    it('should return events within the last 20 years', async () => {
+      const result = await service.getDisasterHistory(mockCoordinates);
+      const currentYear = new Date().getFullYear();
+      const twentyYearsAgo = currentYear - 20;
+      
+      result.forEach(event => {
+        expect(event.date.getFullYear()).toBeGreaterThanOrEqual(twentyYearsAgo);
+        expect(event.date.getFullYear()).toBeLessThanOrEqual(currentYear);
+      });
+    });
+
+    it('should return events with valid disaster types', async () => {
+      const result = await service.getDisasterHistory(mockCoordinates);
+      const validTypes = ['台風', '豪雨', '地震', '洪水', '土砂災害', '津波', '竜巻', '雪害'];
+      
+      result.forEach(event => {
+        expect(validTypes).toContain(event.type);
+      });
+    });
+
+    it('should return events with appropriate severity levels', async () => {
+      const result = await service.getDisasterHistory(mockCoordinates);
+      const validSeverities = [
+        // 地震
+        '震度3', '震度4', '震度5弱', '震度5強', '震度6弱',
+        // 津波
+        '津波注意報', '津波警報', '大津波警報',
+        // 台風・豪雨
+        '軽微', '中程度', '甚大', '注意', '警戒', '危険',
+        // 洪水・土砂災害
+        '小規模', '中規模', '大規模',
+        // 竜巻
+        'F0', 'F1', 'F2',
+        // 雪害
+        '大雪注意報', '大雪警報', '暴風雪警報'
+      ];
+      
+      result.forEach(event => {
+        expect(validSeverities).toContain(event.severity);
+      });
+    });
+
+    it('should return events with valid sources', async () => {
+      const result = await service.getDisasterHistory(mockCoordinates);
+      const validSources = [
+        '気象庁', '自治体', '河川事務所', '地震調査委員会',
+        '国土交通省', '国土交通省砂防部'
+      ];
+      
+      result.forEach(event => {
+        expect(validSources).toContain(event.source);
+      });
+    });
+
+    it('should filter out low importance events', async () => {
+      const result = await service.getDisasterHistory(mockCoordinates);
+      
+      // All returned events should have importance level 3 or higher
+      // This means no events with very low severity should be included
+      result.forEach(event => {
+        // Events with these severities should not appear (importance < 3)
+        expect(event.severity).not.toBe('震度1');
+        expect(event.severity).not.toBe('震度2');
+      });
+    });
+
+    it('should remove duplicate events (same type and date)', async () => {
+      const result = await service.getDisasterHistory(mockCoordinates);
+      const seen = new Set<string>();
+      
+      result.forEach(event => {
+        const key = `${event.type}-${event.date.toDateString()}`;
+        expect(seen.has(key)).toBe(false);
+        seen.add(key);
+      });
+    });
+
+    it('should generate different events for different coordinates', async () => {
+      const coords1: Coordinates = {
+        latitude: 35.6762,
+        longitude: 139.6503,
+        source: 'coordinates'
+      };
+      
+      const coords2: Coordinates = {
+        latitude: 34.6937,
+        longitude: 135.5023,
+        source: 'coordinates'
+      };
+
+      const result1 = await service.getDisasterHistory(coords1);
+      const result2 = await service.getDisasterHistory(coords2);
+
+      expect(result1.length).toBeGreaterThan(0);
+      expect(result2.length).toBeGreaterThan(0);
+      
+      // Events should be different for different locations
+      const events1 = result1.map(e => `${e.type}-${e.date.toISOString()}-${e.severity}`).sort();
+      const events2 = result2.map(e => `${e.type}-${e.date.toISOString()}-${e.severity}`).sort();
+      expect(events1).not.toEqual(events2);
+    });
+
+    it('should generate consistent events for same coordinates', async () => {
+      const result1 = await service.getDisasterHistory(mockCoordinates);
+      const result2 = await service.getDisasterHistory(mockCoordinates);
+
+      expect(result1).toEqual(result2);
+    });
+
+    it('should include appropriate descriptions for each disaster type', async () => {
+      const result = await service.getDisasterHistory(mockCoordinates);
+      
+      result.forEach(event => {
+        expect(event.description).toContain('年');
+        expect(event.description).toContain('月');
+        expect(event.description).toContain('日');
+        
+        switch (event.type) {
+          case '台風':
+            expect(event.description).toContain('台風による被害');
+            expect(event.description).toContain('被害規模');
+            break;
+          case '豪雨':
+            expect(event.description).toContain('豪雨による被害');
+            expect(event.description).toContain('警戒レベル');
+            break;
+          case '地震':
+            expect(event.description).toContain('地震が発生');
+            expect(event.description).toContain('最大震度');
+            break;
+          case '洪水':
+            expect(event.description).toContain('洪水が発生');
+            expect(event.description).toContain('被害規模');
+            break;
+          case '土砂災害':
+            expect(event.description).toContain('土砂災害が発生');
+            expect(event.description).toContain('被害規模');
+            break;
+          case '津波':
+            expect(event.description).toContain('津波が発生');
+            expect(event.description).toContain('警報レベル');
+            break;
+          case '竜巻':
+            expect(event.description).toContain('竜巻が発生');
+            expect(event.description).toContain('強度');
+            break;
+          case '雪害':
+            expect(event.description).toContain('雪害が発生');
+            expect(event.description).toContain('警報レベル');
+            break;
+        }
+      });
+    });
+
+    it('should handle edge case coordinates', async () => {
+      const edgeCoords: Coordinates = {
+        latitude: 45.0,
+        longitude: 145.0,
+        source: 'coordinates'
+      };
+
+      const result = await service.getDisasterHistory(edgeCoords);
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBeGreaterThan(0);
+    });
+
+    it('should handle coordinates with different sources', async () => {
+      const addressCoords: Coordinates = {
+        latitude: 35.6762,
+        longitude: 139.6503,
+        address: '東京都渋谷区',
+        source: 'address'
+      };
+
+      const suumoCoords: Coordinates = {
+        latitude: 35.6762,
+        longitude: 139.6503,
+        source: 'suumo'
+      };
+
+      const geolocationCoords: Coordinates = {
+        latitude: 35.6762,
+        longitude: 139.6503,
+        source: 'geolocation'
+      };
+
+      const result1 = await service.getDisasterHistory(addressCoords);
+      const result2 = await service.getDisasterHistory(suumoCoords);
+      const result3 = await service.getDisasterHistory(geolocationCoords);
+
+      expect(Array.isArray(result1)).toBe(true);
+      expect(Array.isArray(result2)).toBe(true);
+      expect(Array.isArray(result3)).toBe(true);
+      
+      expect(result1.length).toBeGreaterThan(0);
+      expect(result2.length).toBeGreaterThan(0);
+      expect(result3.length).toBeGreaterThan(0);
     });
 
     it('should handle errors and wrap them in ExternalAPIError', async () => {
-      // This test will be expanded when actual API calls are implemented
+      // Test error handling by mocking a failure scenario
+      const originalMethod = service['generateHistoricalDisasterEvents'];
+      service['generateHistoricalDisasterEvents'] = jest.fn().mockRejectedValue(new Error('Test error'));
+
+      await expect(service.getDisasterHistory(mockCoordinates)).rejects.toThrow(ExternalAPIError);
+      await expect(service.getDisasterHistory(mockCoordinates)).rejects.toThrow('Failed to fetch disaster history: Test error');
+
+      // Restore original method
+      service['generateHistoricalDisasterEvents'] = originalMethod;
+    });
+
+    it('should filter events by importance level', async () => {
       const result = await service.getDisasterHistory(mockCoordinates);
-      expect(Array.isArray(result)).toBe(true);
+      
+      // Check that all events have importance level 3 or higher
+      const importanceMap: { [key: string]: number } = {
+        '震度6弱': 10, '震度5強': 9, '震度5弱': 8, '震度4': 6, '震度3': 4,
+        '大津波警報': 10, '津波警報': 8, '津波注意報': 6,
+        '甚大': 9, '危険': 8, '中程度': 6, '警戒': 5, '軽微': 3, '注意': 3,
+        '大規模': 8, '中規模': 6, '小規模': 4,
+        'F2': 8, 'F1': 6, 'F0': 4,
+        '暴風雪警報': 7, '大雪警報': 6, '大雪注意報': 4
+      };
+      
+      result.forEach(event => {
+        const importance = importanceMap[event.severity] || 1;
+        expect(importance).toBeGreaterThanOrEqual(3);
+      });
     });
   });
 

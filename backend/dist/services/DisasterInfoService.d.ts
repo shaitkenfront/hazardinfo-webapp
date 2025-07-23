@@ -123,5 +123,25 @@ export declare class DisasterInfoService implements IDisasterInfoService {
      * 住所を生成（実際の実装では逆ジオコーディングAPIを使用）
      */
     private generateAddress;
+    /**
+     * 過去の災害イベント情報を生成
+     */
+    private generateHistoricalDisasterEvents;
+    /**
+     * 災害履歴のデータ整理とフィルタリング
+     */
+    private filterAndOrganizeDisasterHistory;
+    /**
+     * 重複する災害イベントを除去
+     */
+    private removeDuplicateEvents;
+    /**
+     * 重要度に基づいてイベントをフィルタリング
+     */
+    private filterByImportance;
+    /**
+     * 災害イベントの説明文を生成
+     */
+    private generateDisasterEventDescription;
 }
 //# sourceMappingURL=DisasterInfoService.d.ts.map
