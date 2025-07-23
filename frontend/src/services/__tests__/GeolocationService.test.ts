@@ -14,7 +14,8 @@ const mockPermissions = {
 };
 
 // Navigatorのモック
-Object.defineProperty(global, 'navigator', {
+// @ts-ignore - global definition for test environment
+Object.defineProperty(global as any, 'navigator', {
   value: {
     geolocation: mockGeolocation,
     permissions: mockPermissions
@@ -39,7 +40,7 @@ describe('GeolocationService', () => {
         }
       };
 
-      mockGeolocation.getCurrentPosition.mockImplementation((success) => {
+      mockGeolocation.getCurrentPosition.mockImplementation((success: any) => {
         success(mockPosition);
       });
 
@@ -60,7 +61,7 @@ describe('GeolocationService', () => {
         }
       };
 
-      mockGeolocation.getCurrentPosition.mockImplementation((success) => {
+      mockGeolocation.getCurrentPosition.mockImplementation((success: any) => {
         success(mockPosition);
       });
 
@@ -85,7 +86,7 @@ describe('GeolocationService', () => {
         message: 'User denied the request for Geolocation.'
       };
 
-      mockGeolocation.getCurrentPosition.mockImplementation((success, error) => {
+      mockGeolocation.getCurrentPosition.mockImplementation((_success: any, error: any) => {
         error(mockError);
       });
 
@@ -93,7 +94,7 @@ describe('GeolocationService', () => {
       
       try {
         await geolocationService.getCurrentLocation();
-      } catch (error) {
+      } catch (error: any) {
         expect(error.type).toBe(GeolocationErrorType.PERMISSION_DENIED);
         expect(error.code).toBe(1);
       }
@@ -105,7 +106,7 @@ describe('GeolocationService', () => {
         message: 'Network location provider at \'https://www.googleapis.com/\' : No response received.'
       };
 
-      mockGeolocation.getCurrentPosition.mockImplementation((success, error) => {
+      mockGeolocation.getCurrentPosition.mockImplementation((_success: any, error: any) => {
         error(mockError);
       });
 
@@ -113,7 +114,7 @@ describe('GeolocationService', () => {
       
       try {
         await geolocationService.getCurrentLocation();
-      } catch (error) {
+      } catch (error: any) {
         expect(error.type).toBe(GeolocationErrorType.POSITION_UNAVAILABLE);
         expect(error.code).toBe(2);
       }
@@ -125,7 +126,7 @@ describe('GeolocationService', () => {
         message: 'Timeout expired'
       };
 
-      mockGeolocation.getCurrentPosition.mockImplementation((success, error) => {
+      mockGeolocation.getCurrentPosition.mockImplementation((_success: any, error: any) => {
         error(mockError);
       });
 
@@ -133,7 +134,7 @@ describe('GeolocationService', () => {
       
       try {
         await geolocationService.getCurrentLocation();
-      } catch (error) {
+      } catch (error: any) {
         expect(error.type).toBe(GeolocationErrorType.TIMEOUT);
         expect(error.code).toBe(3);
       }
@@ -141,7 +142,8 @@ describe('GeolocationService', () => {
 
     it('should throw GeolocationError when geolocation is not supported', async () => {
       // Geolocation APIを無効にする
-      Object.defineProperty(global, 'navigator', {
+      // @ts-ignore - global definition for test environment
+Object.defineProperty(global as any, 'navigator', {
         value: {},
         writable: true
       });
@@ -152,12 +154,13 @@ describe('GeolocationService', () => {
       
       try {
         await service.getCurrentLocation();
-      } catch (error) {
+      } catch (error: any) {
         expect(error.type).toBe(GeolocationErrorType.NOT_SUPPORTED);
       }
 
       // テスト後にnavigatorを復元
-      Object.defineProperty(global, 'navigator', {
+      // @ts-ignore - global definition for test environment
+Object.defineProperty(global as any, 'navigator', {
         value: {
           geolocation: mockGeolocation,
           permissions: mockPermissions
@@ -199,7 +202,7 @@ describe('GeolocationService', () => {
         }
       };
 
-      mockGeolocation.watchPosition.mockImplementation((success) => {
+      mockGeolocation.watchPosition.mockImplementation((success: any) => {
         success(mockPosition);
         return 123;
       });
@@ -221,7 +224,7 @@ describe('GeolocationService', () => {
         message: 'Permission denied'
       };
 
-      mockGeolocation.watchPosition.mockImplementation((success, error) => {
+      mockGeolocation.watchPosition.mockImplementation((_success: any, error: any) => {
         error(mockError);
         return 123;
       });
@@ -233,7 +236,8 @@ describe('GeolocationService', () => {
 
     it('should return null and call error callback when geolocation is not supported', () => {
       // Geolocation APIを無効にする
-      Object.defineProperty(global, 'navigator', {
+      // @ts-ignore - global definition for test environment
+Object.defineProperty(global as any, 'navigator', {
         value: {},
         writable: true
       });
@@ -248,7 +252,8 @@ describe('GeolocationService', () => {
       expect(mockErrorCallback).toHaveBeenCalledWith(expect.any(GeolocationError));
 
       // テスト後にnavigatorを復元
-      Object.defineProperty(global, 'navigator', {
+      // @ts-ignore - global definition for test environment
+Object.defineProperty(global as any, 'navigator', {
         value: {
           geolocation: mockGeolocation,
           permissions: mockPermissions
@@ -269,7 +274,8 @@ describe('GeolocationService', () => {
 
     it('should not throw error when geolocation is not supported', () => {
       // Geolocation APIを無効にする
-      Object.defineProperty(global, 'navigator', {
+      // @ts-ignore - global definition for test environment
+Object.defineProperty(global as any, 'navigator', {
         value: {},
         writable: true
       });
@@ -279,7 +285,8 @@ describe('GeolocationService', () => {
       expect(() => service.clearWatch(123)).not.toThrow();
 
       // テスト後にnavigatorを復元
-      Object.defineProperty(global, 'navigator', {
+      // @ts-ignore - global definition for test environment
+Object.defineProperty(global as any, 'navigator', {
         value: {
           geolocation: mockGeolocation,
           permissions: mockPermissions
@@ -302,7 +309,8 @@ describe('GeolocationService', () => {
 
     it('should return prompt when permissions API is not available', async () => {
       // Permissions APIを無効にする
-      Object.defineProperty(global, 'navigator', {
+      // @ts-ignore - global definition for test environment
+Object.defineProperty(global as any, 'navigator', {
         value: {
           geolocation: mockGeolocation
         },
@@ -315,7 +323,8 @@ describe('GeolocationService', () => {
       expect(result).toBe('prompt');
 
       // テスト後にnavigatorを復元
-      Object.defineProperty(global, 'navigator', {
+      // @ts-ignore - global definition for test environment
+Object.defineProperty(global as any, 'navigator', {
         value: {
           geolocation: mockGeolocation,
           permissions: mockPermissions
@@ -341,7 +350,8 @@ describe('GeolocationService', () => {
 
     it('should return false when geolocation is not supported', () => {
       // Geolocation APIを無効にする
-      Object.defineProperty(global, 'navigator', {
+      // @ts-ignore - global definition for test environment
+Object.defineProperty(global as any, 'navigator', {
         value: {},
         writable: true
       });
@@ -352,7 +362,8 @@ describe('GeolocationService', () => {
       expect(result).toBe(false);
 
       // テスト後にnavigatorを復元
-      Object.defineProperty(global, 'navigator', {
+      // @ts-ignore - global definition for test environment
+Object.defineProperty(global as any, 'navigator', {
         value: {
           geolocation: mockGeolocation,
           permissions: mockPermissions

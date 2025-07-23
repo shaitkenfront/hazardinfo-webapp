@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react'; // unused in test
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { DisasterInfoDisplayComponent, DisasterInfoData } from '../DisasterInfoDisplayComponent';
@@ -86,10 +86,17 @@ const mockWeatherAlerts: WeatherAlert[] = [
 ];
 
 const mockDisasterInfoData: DisasterInfoData = {
+  coordinates: {
+    latitude: 35.6762,
+    longitude: 139.6503,
+    address: '東京都千代田区丸の内1-1-1',
+    source: 'address' as const
+  },
   hazardInfo: mockHazardInfo,
   shelters: mockShelters,
   disasterHistory: mockDisasterHistory,
   weatherAlerts: mockWeatherAlerts,
+  lastUpdated: '2024-01-20T12:00:00Z',
   location: {
     address: '東京都千代田区丸の内1-1-1',
     coordinates: {

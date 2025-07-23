@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { ApiClient, ApiError } from '../ApiClient';
-import { Coordinates } from '../../types';
+// import { Coordinates } from '../../types'; // unused
 
 // fetchのモック
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
+// @ts-ignore - global definition for test environment
+(global as any).fetch = mockFetch;
 
 describe('ApiClient', () => {
   let apiClient: ApiClient;

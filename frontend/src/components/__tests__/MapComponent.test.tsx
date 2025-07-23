@@ -1,5 +1,5 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
+// import React from 'react'; // unused in test
+import { render } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { MapComponent } from '../MapComponent';
 import { Coordinates, HazardInfo, Shelter } from '../../types';

@@ -153,7 +153,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   const createShelterMarkers = useCallback(() => {
     if (!mapInstanceRef.current || !shelters.length) return [];
 
-    return shelters.map((shelter, index) => {
+    return shelters.map((shelter) => {
       // 避難所用のカスタムアイコン
       const shelterIcon = L.divIcon({
         className: 'shelter-marker',
@@ -201,7 +201,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   const createHazardOverlays = useCallback(() => {
     if (!mapInstanceRef.current || !hazardInfo.length) return [];
 
-    return hazardInfo.map((hazard, index) => {
+    return hazardInfo.map((hazard) => {
       const color = RISK_LEVEL_COLORS[hazard.riskLevel];
       
       // リスクレベルに応じて円のサイズを調整

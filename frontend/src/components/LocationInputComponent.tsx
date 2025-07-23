@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { GeolocationService, GeolocationError } from '../services/GeolocationService';
+import { GeolocationService } from '../services/GeolocationService';
 import './LocationInputComponent.css';
 
 /**
@@ -47,9 +47,7 @@ interface FormState {
  */
 export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
   onLocationSubmit,
-  isLoading = false,
-  error,
-  onClearError
+  isLoading = false
 }) => {
   const [formState, setFormState] = useState<FormState>({
     inputType: 'address',
