@@ -144,6 +144,9 @@ cache.db
 .kiro/.cache/
 .kiro/logs/
 
+# Claude Code
+.claude
+
 # Hot reload
 .hot-reload
 
