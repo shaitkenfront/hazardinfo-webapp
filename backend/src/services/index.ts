@@ -12,3 +12,10 @@ export {
   IDisasterInfoService,
   ExternalAPIError
 } from './DisasterInfoService';
+
+export {
+  CacheService,
+  SQLiteCacheService,
+  getCacheService,
+  setCacheService
+} from './CacheService';
