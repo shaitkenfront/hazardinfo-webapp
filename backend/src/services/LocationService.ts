@@ -163,37 +163,51 @@ export class LocationService implements ILocationService {
   }
 
   /**
-   * 国土地理院ジオコーディングAPIを呼び出す（プライベートメソッド）
+   * Google Maps Geocoding APIを呼び出す（プライベートメソッド）
    */
   private async callGeocodingAPI(address: string): Promise<any[]> {
-    // 実際の実装では fetch を使用して外部APIを呼び出す
-    // 現在はモックデータを返す
+    const apiKey = process.env.GOOGLE_API_KEY;
     
-    // モックレスポンス（実際のAPIレスポンス形式に合わせる）
-    if (address.includes('東京')) {
-      return [{
-        geometry: {
-          coordinates: [139.6917, 35.6895] // 東京駅の座標
-        },
-        properties: {
-          title: address
-        }
-      }];
-    }
-    
-    if (address.includes('大阪')) {
-      return [{
-        geometry: {
-          coordinates: [135.5023, 34.6937] // 大阪駅の座標
-        },
-        properties: {
-          title: address
-        }
-      }];
+    if (!apiKey) {
+      throw new Error('GOOGLE_API_KEY環境変数が設定されていません');
     }
 
-    // 住所が見つからない場合
-    return [];
+    const encodedAddress = encodeURIComponent(address);
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${apiKey}&region=jp`;
+
+    try {
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.status === 'ZERO_RESULTS') {
+        return [];
+      }
+      
+      if (data.status !== 'OK') {
+        throw new Error(`Geocoding API error: ${data.status} - ${data.error_message || 'Unknown error'}`);
+      }
+
+      // Google Maps APIのレスポンス形式を国土地理院形式に変換
+      return data.results.map((result: any) => ({
+        geometry: {
+          coordinates: [
+            result.geometry.location.lng,
+            result.geometry.location.lat
+          ]
+        },
+        properties: {
+          title: result.formatted_address
+        }
+      }));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Geocoding APIの呼び出しに失敗しました: ${errorMessage}`);
+    }
   }
 
 

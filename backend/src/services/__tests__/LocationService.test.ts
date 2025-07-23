@@ -1,33 +1,58 @@
 import { LocationService, LocationNotFoundError, InvalidInputError, SuumoParsingError, GeolocationError } from '../LocationService';
 
+// Fetch APIのモック
+global.fetch = jest.fn();
+const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
+
 describe('LocationService', () => {
   let locationService: LocationService;
+  const originalEnv = process.env;
 
   beforeEach(() => {
     locationService = new LocationService();
+    // 環境変数をリセット
+    process.env = { ...originalEnv };
+    process.env.GOOGLE_API_KEY = 'test-api-key';
+    // fetchモックをリセット
+    mockFetch.mockClear();
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
   });
 
   describe('resolveAddress', () => {
-    it('should resolve valid Tokyo address', async () => {
+    it('should resolve valid address using Google Maps API', async () => {
+      const mockResponse = {
+        status: 'OK',
+        results: [{
+          formatted_address: '日本、〒100-0001 東京都千代田区千代田',
+          geometry: {
+            location: {
+              lat: 35.6812,
+              lng: 139.7671
+            }
+          }
+        }]
+      };
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponse
+      } as Response);
+
       const result = await locationService.resolveAddress('東京都千代田区');
       
       expect(result).toEqual({
-        latitude: 35.6895,
-        longitude: 139.6917,
+        latitude: 35.6812,
+        longitude: 139.7671,
         address: '東京都千代田区',
         source: 'address'
       });
-    });
 
-    it('should resolve valid Osaka address', async () => {
-      const result = await locationService.resolveAddress('大阪府大阪市');
-      
-      expect(result).toEqual({
-        latitude: 34.6937,
-        longitude: 135.5023,
-        address: '大阪府大阪市',
-        source: 'address'
-      });
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://maps.googleapis.com/maps/api/geocode/json?address=%E6%9D%B1%E4%BA%AC%E9%83%BD%E5%8D%83%E4%BB%A3%E7%94%B0%E5%8C%BA&key=test-api-key&region=jp'
+      );
     });
 
     it('should throw InvalidInputError for empty address', async () => {
@@ -35,8 +60,53 @@ describe('LocationService', () => {
       await expect(locationService.resolveAddress('   ')).rejects.toThrow(InvalidInputError);
     });
 
-    it('should throw LocationNotFoundError for unknown address', async () => {
+    it('should throw LocationNotFoundError when API returns ZERO_RESULTS', async () => {
+      const mockResponse = {
+        status: 'ZERO_RESULTS',
+        results: []
+      };
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponse
+      } as Response);
+
       await expect(locationService.resolveAddress('存在しない住所')).rejects.toThrow(LocationNotFoundError);
+    });
+
+    it('should throw error when GOOGLE_API_KEY is not set', async () => {
+      delete process.env.GOOGLE_API_KEY;
+
+      await expect(locationService.resolveAddress('東京都千代田区')).rejects.toThrow('GOOGLE_API_KEY環境変数が設定されていません');
+    });
+
+    it('should throw error when API returns error status', async () => {
+      const mockResponse = {
+        status: 'REQUEST_DENIED',
+        error_message: 'API key not valid'
+      };
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponse
+      } as Response);
+
+      await expect(locationService.resolveAddress('東京都千代田区')).rejects.toThrow('Geocoding API error: REQUEST_DENIED - API key not valid');
+    });
+
+    it('should throw error when HTTP request fails', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 403
+      } as Response);
+
+      await expect(locationService.resolveAddress('東京都千代田区')).rejects.toThrow('HTTP error! status: 403');
+    });
+
+    it('should throw error when fetch fails', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+      await expect(locationService.resolveAddress('東京都千代田区')).rejects.toThrow('Geocoding APIの呼び出しに失敗しました: Network error');
     });
   });
 
