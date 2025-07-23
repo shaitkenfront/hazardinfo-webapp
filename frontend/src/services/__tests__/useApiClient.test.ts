@@ -91,29 +91,9 @@ describe('useApiClient', () => {
       expect(resolveResult).toEqual(mockCoordinates);
     });
 
-    it('SUUMO URL解決が正常に動作する', async () => {
-      const mockCoordinates: Coordinates = {
-        latitude: 35.6762,
-        longitude: 139.6503,
-        address: '東京都渋谷区',
-        source: 'suumo'
-      };
-
-      (mockApiClient.resolveSuumoUrl as any).mockResolvedValueOnce(mockCoordinates);
-
-      const { result } = renderHook(() => useApiClient(mockApiClient));
-
-      const suumoUrl = 'https://suumo.jp/test';
-      let resolveResult: Coordinates | null = null;
-
-      await act(async () => {
-        resolveResult = await result.current.resolveLocation('suumo', {
-          url: suumoUrl
-        });
-      });
-
-      expect(mockApiClient.resolveSuumoUrl).toHaveBeenCalledWith(suumoUrl);
-      expect(resolveResult).toEqual(mockCoordinates);
+    // SUUMO機能は削除されたため、このテストを無効化
+    it.skip('SUUMO URL解決が正常に動作する（機能削除済み）', async () => {
+      // このテストは無効化されています - SUUMO機能が削除されたため
     });
 
     it('現在地解決が正常に動作する', async () => {

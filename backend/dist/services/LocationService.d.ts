@@ -17,12 +17,6 @@ export interface ILocationService {
      */
     parseCoordinates(lat: string, lng: string): Promise<Coordinates>;
     /**
-     * SUUMO URLから物件の位置情報を抽出
-     * @param url SUUMO URL
-     * @returns 座標情報
-     */
-    extractLocationFromSuumo(url: string): Promise<Coordinates>;
-    /**
      * 現在地を取得（フロントエンド用）
      * @returns 座標情報
      */
@@ -44,9 +38,6 @@ export declare class LocationNotFoundError extends Error {
 export declare class InvalidInputError extends Error {
     constructor(message: string);
 }
-export declare class SuumoParsingError extends Error {
-    constructor(message: string);
-}
 export declare class GeolocationError extends Error {
     constructor(message: string);
 }
@@ -64,10 +55,6 @@ export declare class LocationService implements ILocationService {
      */
     parseCoordinates(lat: string, lng: string): Promise<Coordinates>;
     /**
-     * SUUMO URLから位置情報を抽出
-     */
-    extractLocationFromSuumo(url: string): Promise<Coordinates>;
-    /**
      * 現在地を取得（ブラウザのGeolocation API用）
      * 注意: これはフロントエンド側で実装される機能のインターフェース
      * バックエンドでは、フロントエンドから受け取った座標を処理する
@@ -81,36 +68,8 @@ export declare class LocationService implements ILocationService {
      */
     processGeolocationCoordinates(latitude: number, longitude: number): Promise<Coordinates>;
     /**
-     * 国土地理院ジオコーディングAPIを呼び出す（プライベートメソッド）
+     * Google Maps Geocoding APIを呼び出す（プライベートメソッド）
      */
     private callGeocodingAPI;
-    /**
-     * SUUMO URLの妥当性をチェック
-     */
-    private isValidSuumoUrl;
-    /**
-     * SUUMO URLを解析して位置情報を取得
-     */
-    private parseSuumoUrl;
-    /**
-     * 賃貸物件URLを解析
-     */
-    private parseChintaiUrl;
-    /**
-     * 分譲マンションURLを解析
-     */
-    private parseMansionUrl;
-    /**
-     * 新築一戸建てURLを解析
-     */
-    private parseIkkodateUrl;
-    /**
-     * 中古一戸建てURLを解析
-     */
-    private parseChukoIkkodateUrl;
-    /**
-     * 土地URLを解析
-     */
-    private parseTochiUrl;
 }
 //# sourceMappingURL=LocationService.d.ts.map

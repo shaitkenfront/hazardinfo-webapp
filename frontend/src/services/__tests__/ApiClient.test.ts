@@ -133,44 +133,10 @@ describe('ApiClient', () => {
     });
   });
 
-  describe('resolveSuumoUrl', () => {
+  // SUUMO機能は削除されたため、この describe ブロック全体を無効化
+  describe.skip('resolveSuumoUrl (機能削除済み)', () => {
     it('SUUMO URLから位置情報を正常に取得する', async () => {
-      const mockResponse = {
-        success: true,
-        data: {
-          latitude: 35.6762,
-          longitude: 139.6503,
-          address: '東京都渋谷区',
-          source: 'suumo'
-        }
-      };
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      });
-
-      const suumoUrl = 'https://suumo.jp/jj/chintai/ichiran/FR301FC001/?ar=030&bs=040&ta=13&sc=13113&cb=0.0&ct=9999999&et=9999999&cn=9999999&mb=0&mt=9999999&shkr1=03&shkr2=03&shkr3=03&shkr4=03&fw2=';
-      const result = await apiClient.resolveSuumoUrl(suumoUrl);
-
-      expect(mockFetch).toHaveBeenCalledWith('/api/location/resolve', {
-        method: 'POST',
-        signal: expect.any(AbortSignal),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type: 'suumo',
-          url: suumoUrl,
-        }),
-      });
-
-      expect(result).toEqual({
-        latitude: 35.6762,
-        longitude: 139.6503,
-        address: '東京都渋谷区',
-        source: 'suumo'
-      });
+      // このテストは無効化されています - SUUMO機能が削除されたため
     });
   });
 

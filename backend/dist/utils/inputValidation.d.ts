@@ -76,4 +76,25 @@ export declare class SuumoUrlValidator {
      */
     static extractPropertyId(url: string): string | null;
 }
+/**
+ * 位置情報解決APIのリクエストバリデーション結果
+ */
+export interface LocationInputValidationResult {
+    isValid: boolean;
+    errors: string[];
+}
+/**
+ * 位置情報解決APIのリクエストボディ型定義
+ */
+export interface LocationResolveRequest {
+    type: 'address' | 'coordinates' | 'suumo' | 'geolocation';
+    address?: string;
+    latitude?: string | number;
+    longitude?: string | number;
+    url?: string;
+}
+/**
+ * 位置情報解決APIのリクエストをバリデーション
+ */
+export declare function validateLocationInput(request: LocationResolveRequest): LocationInputValidationResult;
 //# sourceMappingURL=inputValidation.d.ts.map

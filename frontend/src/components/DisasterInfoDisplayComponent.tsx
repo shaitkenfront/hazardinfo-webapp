@@ -1,15 +1,17 @@
 import React, { useState, useCallback } from 'react';
-import { HazardInfo, Shelter, DisasterEvent, WeatherAlert } from '../types';
+import { Coordinates, HazardInfo, Shelter, DisasterEvent, WeatherAlert } from '../types';
 import './DisasterInfoDisplayComponent.css';
 
 /**
  * 防災情報の統合データ型
  */
 export interface DisasterInfoData {
+  coordinates: Coordinates;
   hazardInfo: HazardInfo[];
   shelters: Shelter[];
   disasterHistory: DisasterEvent[];
   weatherAlerts: WeatherAlert[];
+  lastUpdated: string;
   location?: {
     address?: string;
     coordinates: {

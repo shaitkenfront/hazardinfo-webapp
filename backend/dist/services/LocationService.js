@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LocationService = exports.GeolocationError = exports.SuumoParsingError = exports.InvalidInputError = exports.LocationNotFoundError = void 0;
+exports.LocationService = exports.GeolocationError = exports.InvalidInputError = exports.LocationNotFoundError = void 0;
 /**
  * カスタムエラークラス
  */
@@ -18,13 +18,6 @@ class InvalidInputError extends Error {
     }
 }
 exports.InvalidInputError = InvalidInputError;
-class SuumoParsingError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = 'SuumoParsingError';
-    }
-}
-exports.SuumoParsingError = SuumoParsingError;
 class GeolocationError extends Error {
     constructor(message) {
         super(message);
@@ -90,34 +83,6 @@ class LocationService {
         };
     }
     /**
-     * SUUMO URLから位置情報を抽出
-     */
-    async extractLocationFromSuumo(url) {
-        if (!url || !this.isValidSuumoUrl(url)) {
-            throw new SuumoParsingError('有効なSUUMO URLを入力してください');
-        }
-        try {
-            // SUUMO URLから物件情報を取得
-            const locationData = await this.parseSuumoUrl(url);
-            if (!locationData) {
-                throw new SuumoParsingError('SUUMO URLから位置情報を取得できませんでした');
-            }
-            return {
-                latitude: locationData.latitude,
-                longitude: locationData.longitude,
-                address: locationData.address,
-                source: 'suumo'
-            };
-        }
-        catch (error) {
-            if (error instanceof SuumoParsingError) {
-                throw error;
-            }
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            throw new SuumoParsingError(`SUUMO URL解析エラー: ${errorMessage}`);
-        }
-    }
-    /**
      * 現在地を取得（ブラウザのGeolocation API用）
      * 注意: これはフロントエンド側で実装される機能のインターフェース
      * バックエンドでは、フロントエンドから受け取った座標を処理する
@@ -148,162 +113,44 @@ class LocationService {
         };
     }
     /**
-     * 国土地理院ジオコーディングAPIを呼び出す（プライベートメソッド）
+     * Google Maps Geocoding APIを呼び出す（プライベートメソッド）
      */
     async callGeocodingAPI(address) {
-        // 実際の実装では fetch を使用して外部APIを呼び出す
-        // 現在はモックデータを返す
-        // モックレスポンス（実際のAPIレスポンス形式に合わせる）
-        if (address.includes('東京')) {
-            return [{
-                    geometry: {
-                        coordinates: [139.6917, 35.6895] // 東京駅の座標
-                    },
-                    properties: {
-                        title: address
-                    }
-                }];
+        const apiKey = process.env.GOOGLE_API_KEY;
+        if (!apiKey) {
+            throw new Error('GOOGLE_API_KEY環境変数が設定されていません');
         }
-        if (address.includes('大阪')) {
-            return [{
-                    geometry: {
-                        coordinates: [135.5023, 34.6937] // 大阪駅の座標
-                    },
-                    properties: {
-                        title: address
-                    }
-                }];
-        }
-        // 住所が見つからない場合
-        return [];
-    }
-    /**
-     * SUUMO URLの妥当性をチェック
-     */
-    isValidSuumoUrl(url) {
+        const encodedAddress = encodeURIComponent(address);
+        const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${apiKey}&region=jp`;
         try {
-            const urlObj = new URL(url);
-            return urlObj.hostname.includes('suumo.jp') || urlObj.hostname === 'suumo.jp';
-        }
-        catch {
-            return false;
-        }
-    }
-    /**
-     * SUUMO URLを解析して位置情報を取得
-     */
-    async parseSuumoUrl(url) {
-        try {
-            const urlObj = new URL(url);
-            // 賃貸物件のURL解析
-            if (url.includes('/chintai/')) {
-                return this.parseChintaiUrl(urlObj);
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            // 分譲マンションのURL解析
-            if (url.includes('/mansion/')) {
-                return this.parseMansionUrl(urlObj);
+            const data = await response.json();
+            if (data.status === 'ZERO_RESULTS') {
+                return [];
             }
-            // 新築一戸建てのURL解析
-            if (url.includes('/ikkodate/')) {
-                return this.parseIkkodateUrl(urlObj);
+            if (data.status !== 'OK') {
+                throw new Error(`Geocoding API error: ${data.status} - ${data.error_message || 'Unknown error'}`);
             }
-            // 中古一戸建てのURL解析
-            if (url.includes('/chukoikkodate/')) {
-                return this.parseChukoIkkodateUrl(urlObj);
-            }
-            // 土地のURL解析
-            if (url.includes('/tochi/')) {
-                return this.parseTochiUrl(urlObj);
-            }
-            // サポートされていないURLパターン
-            throw new SuumoParsingError('サポートされていないSUUMO URLパターンです');
+            // Google Maps APIのレスポンス形式を国土地理院形式に変換
+            return data.results.map((result) => ({
+                geometry: {
+                    coordinates: [
+                        result.geometry.location.lng,
+                        result.geometry.location.lat
+                    ]
+                },
+                properties: {
+                    title: result.formatted_address
+                }
+            }));
         }
         catch (error) {
-            throw new SuumoParsingError(`URL解析中にエラーが発生しました: ${error instanceof Error ? error.message : String(error)}`);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            throw new Error(`Geocoding APIの呼び出しに失敗しました: ${errorMessage}`);
         }
-    }
-    /**
-     * 賃貸物件URLを解析
-     */
-    parseChintaiUrl(urlObj) {
-        // 実際の実装では、URLから物件IDを抽出してAPIを呼び出すか、
-        // ページをスクレイピングして位置情報を取得する
-        // モックデータ: URLパターンに基づいて異なる位置を返す
-        const pathname = urlObj.pathname;
-        if (pathname.includes('tokyo') || pathname.includes('13')) {
-            return {
-                latitude: 35.6762,
-                longitude: 139.6503,
-                address: '東京都渋谷区'
-            };
-        }
-        if (pathname.includes('osaka') || pathname.includes('27')) {
-            return {
-                latitude: 34.6937,
-                longitude: 135.5023,
-                address: '大阪府大阪市'
-            };
-        }
-        if (pathname.includes('kanagawa') || pathname.includes('14')) {
-            return {
-                latitude: 35.4478,
-                longitude: 139.6425,
-                address: '神奈川県横浜市'
-            };
-        }
-        // デフォルトは東京駅周辺
-        return {
-            latitude: 35.6812,
-            longitude: 139.7671,
-            address: '東京都千代田区'
-        };
-    }
-    /**
-     * 分譲マンションURLを解析
-     */
-    parseMansionUrl(urlObj) {
-        const pathname = urlObj.pathname;
-        // 地域コードまたは地域名から位置を推定
-        if (pathname.includes('tokyo') || pathname.includes('13')) {
-            return {
-                latitude: 35.6895,
-                longitude: 139.6917,
-                address: '東京都'
-            };
-        }
-        if (pathname.includes('osaka') || pathname.includes('27')) {
-            return {
-                latitude: 34.6937,
-                longitude: 135.5023,
-                address: '大阪府'
-            };
-        }
-        return {
-            latitude: 35.6812,
-            longitude: 139.7671,
-            address: '東京都'
-        };
-    }
-    /**
-     * 新築一戸建てURLを解析
-     */
-    parseIkkodateUrl(urlObj) {
-        // 新築一戸建ての場合も同様の処理
-        return this.parseMansionUrl(urlObj);
-    }
-    /**
-     * 中古一戸建てURLを解析
-     */
-    parseChukoIkkodateUrl(urlObj) {
-        // 中古一戸建ての場合も同様の処理
-        return this.parseMansionUrl(urlObj);
-    }
-    /**
-     * 土地URLを解析
-     */
-    parseTochiUrl(urlObj) {
-        // 土地の場合も同様の処理
-        return this.parseMansionUrl(urlObj);
     }
 }
 exports.LocationService = LocationService;

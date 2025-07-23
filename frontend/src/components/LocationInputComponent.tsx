@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Coordinates } from '../types';
-import { GeolocationService, GeolocationError, GeolocationErrorType } from '../services/GeolocationService';
+import { GeolocationService, GeolocationError } from '../services/GeolocationService';
 import './LocationInputComponent.css';
 
 /**
@@ -20,10 +19,17 @@ export interface ValidationError {
  * LocationInputComponentのProps
  */
 export interface LocationInputComponentProps {
-  onLocationSubmit: (coordinates: Coordinates) => void;
-  onError: (error: string) => void;
-  loading?: boolean;
-  disabled?: boolean;
+  onLocationSubmit: (
+    type: 'address' | 'coordinates' | 'geolocation',
+    params: {
+      address?: string;
+      latitude?: number;
+      longitude?: number;
+    }
+  ) => Promise<void>;
+  isLoading?: boolean;
+  error?: string;
+  onClearError?: () => void;
 }
 
 /**
@@ -41,9 +47,9 @@ interface FormState {
  */
 export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
   onLocationSubmit,
-  onError,
-  loading = false,
-  disabled = false
+  isLoading = false,
+  error,
+  onClearError
 }) => {
   const [formState, setFormState] = useState<FormState>({
     inputType: 'address',
@@ -150,17 +156,17 @@ export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
     
     try {
       const coordinates = await geolocationService.getCurrentLocation();
-      onLocationSubmit(coordinates);
+      await onLocationSubmit('geolocation', {
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude
+      });
     } catch (error) {
-      if (error instanceof GeolocationError) {
-        onError(error.message);
-      } else {
-        onError('現在地の取得中にエラーが発生しました');
-      }
+      // エラー処理は親コンポーネントで行われる
+      console.error('Geolocation error:', error);
     } finally {
       setIsGettingLocation(false);
     }
-  }, [geolocationService, onLocationSubmit, onError]);
+  }, [geolocationService, onLocationSubmit]);
 
   /**
    * フォーム送信
@@ -178,33 +184,26 @@ export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
     }
     
     try {
-      let coordinates: Coordinates;
-      
       switch (formState.inputType) {
         case 'address':
-          coordinates = {
-            latitude: 0, // バックエンドで解決される
-            longitude: 0,
-            address: formState.address.trim(),
-            source: 'address'
-          };
+          await onLocationSubmit('address', {
+            address: formState.address.trim()
+          });
           break;
         case 'coordinates':
-          coordinates = {
+          await onLocationSubmit('coordinates', {
             latitude: parseFloat(formState.latitude),
-            longitude: parseFloat(formState.longitude),
-            source: 'coordinates'
-          };
+            longitude: parseFloat(formState.longitude)
+          });
           break;
         default:
           throw new Error('無効な入力方式です');
       }
-      
-      onLocationSubmit(coordinates);
     } catch (error) {
-      onError('入力データの処理中にエラーが発生しました');
+      // エラー処理は親コンポーネントで行われる
+      console.error('Form submission error:', error);
     }
-  }, [formState, performValidation, handleGetCurrentLocation, onLocationSubmit, onError]);
+  }, [formState, performValidation, handleGetCurrentLocation, onLocationSubmit]);
 
   /**
    * リアルタイムバリデーションの実行
@@ -226,7 +225,7 @@ export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
     return validationErrors.find(error => error.field === field)?.message;
   }, [validationErrors]);
 
-  const isFormDisabled = disabled || loading || isGettingLocation;
+  const isFormDisabled = isLoading || isGettingLocation;
   const canSubmit = formState.inputType === 'geolocation' || validationErrors.length === 0;
 
   return (
@@ -345,7 +344,7 @@ export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
           className="submit-button"
         >
           {isGettingLocation ? '現在地を取得中...' : 
-           loading ? '検索中...' : 
+           isLoading ? '検索中...' : 
            formState.inputType === 'geolocation' ? '現在地を取得' : '防災情報を検索'}
         </button>
       </form>

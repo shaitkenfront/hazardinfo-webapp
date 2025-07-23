@@ -1,4 +1,4 @@
-import { LocationService, LocationNotFoundError, InvalidInputError, SuumoParsingError, GeolocationError } from '../LocationService';
+import { LocationService, LocationNotFoundError, InvalidInputError, GeolocationError } from '../LocationService';
 
 // Fetch APIのモック
 global.fetch = jest.fn();
@@ -148,141 +148,6 @@ describe('LocationService', () => {
     });
   });
 
-  describe('extractLocationFromSuumo', () => {
-    it('should extract location from valid SUUMO chintai URL with tokyo', async () => {
-      const url = 'https://suumo.jp/chintai/tokyo/jnc_000012345.html';
-      const result = await locationService.extractLocationFromSuumo(url);
-      
-      expect(result).toEqual({
-        latitude: 35.6762,
-        longitude: 139.6503,
-        address: '東京都渋谷区',
-        source: 'suumo'
-      });
-    });
-
-    it('should extract location from valid SUUMO chintai URL with area code 13', async () => {
-      const url = 'https://suumo.jp/chintai/13/jnc_000012345.html';
-      const result = await locationService.extractLocationFromSuumo(url);
-      
-      expect(result).toEqual({
-        latitude: 35.6762,
-        longitude: 139.6503,
-        address: '東京都渋谷区',
-        source: 'suumo'
-      });
-    });
-
-    it('should extract location from valid SUUMO chintai URL with osaka', async () => {
-      const url = 'https://suumo.jp/chintai/osaka/jnc_000012345.html';
-      const result = await locationService.extractLocationFromSuumo(url);
-      
-      expect(result).toEqual({
-        latitude: 34.6937,
-        longitude: 135.5023,
-        address: '大阪府大阪市',
-        source: 'suumo'
-      });
-    });
-
-    it('should extract location from valid SUUMO chintai URL with kanagawa', async () => {
-      const url = 'https://suumo.jp/chintai/kanagawa/jnc_000012345.html';
-      const result = await locationService.extractLocationFromSuumo(url);
-      
-      expect(result).toEqual({
-        latitude: 35.4478,
-        longitude: 139.6425,
-        address: '神奈川県横浜市',
-        source: 'suumo'
-      });
-    });
-
-    it('should extract location from valid SUUMO chintai URL with default location', async () => {
-      const url = 'https://suumo.jp/chintai/jnc_000012345.html';
-      const result = await locationService.extractLocationFromSuumo(url);
-      
-      expect(result).toEqual({
-        latitude: 35.6812,
-        longitude: 139.7671,
-        address: '東京都千代田区',
-        source: 'suumo'
-      });
-    });
-
-    it('should extract location from valid SUUMO mansion URL with tokyo', async () => {
-      const url = 'https://suumo.jp/mansion/tokyo/sc_shibuya/nc_12345678/';
-      const result = await locationService.extractLocationFromSuumo(url);
-      
-      expect(result).toEqual({
-        latitude: 35.6895,
-        longitude: 139.6917,
-        address: '東京都',
-        source: 'suumo'
-      });
-    });
-
-    it('should extract location from valid SUUMO mansion URL with osaka', async () => {
-      const url = 'https://suumo.jp/mansion/osaka/sc_osaka/nc_12345678/';
-      const result = await locationService.extractLocationFromSuumo(url);
-      
-      expect(result).toEqual({
-        latitude: 34.6937,
-        longitude: 135.5023,
-        address: '大阪府',
-        source: 'suumo'
-      });
-    });
-
-    it('should extract location from valid SUUMO ikkodate URL', async () => {
-      const url = 'https://suumo.jp/ikkodate/tokyo/nc_12345678/';
-      const result = await locationService.extractLocationFromSuumo(url);
-      
-      expect(result).toEqual({
-        latitude: 35.6895,
-        longitude: 139.6917,
-        address: '東京都',
-        source: 'suumo'
-      });
-    });
-
-    it('should extract location from valid SUUMO chukoikkodate URL', async () => {
-      const url = 'https://suumo.jp/chukoikkodate/tokyo/nc_12345678/';
-      const result = await locationService.extractLocationFromSuumo(url);
-      
-      expect(result).toEqual({
-        latitude: 35.6895,
-        longitude: 139.6917,
-        address: '東京都',
-        source: 'suumo'
-      });
-    });
-
-    it('should extract location from valid SUUMO tochi URL', async () => {
-      const url = 'https://suumo.jp/tochi/tokyo/nc_12345678/';
-      const result = await locationService.extractLocationFromSuumo(url);
-      
-      expect(result).toEqual({
-        latitude: 35.6895,
-        longitude: 139.6917,
-        address: '東京都',
-        source: 'suumo'
-      });
-    });
-
-    it('should throw SuumoParsingError for invalid URL', async () => {
-      await expect(locationService.extractLocationFromSuumo('invalid-url')).rejects.toThrow(SuumoParsingError);
-      await expect(locationService.extractLocationFromSuumo('https://example.com')).rejects.toThrow(SuumoParsingError);
-    });
-
-    it('should throw SuumoParsingError for empty URL', async () => {
-      await expect(locationService.extractLocationFromSuumo('')).rejects.toThrow(SuumoParsingError);
-    });
-
-    it('should throw SuumoParsingError for unsupported SUUMO URL pattern', async () => {
-      const url = 'https://suumo.jp/unsupported/path/';
-      await expect(locationService.extractLocationFromSuumo(url)).rejects.toThrow(SuumoParsingError);
-    });
-  });
 
   describe('getCurrentLocation', () => {
     it('should throw GeolocationError as this is frontend functionality', async () => {
@@ -336,11 +201,6 @@ describe('LocationService', () => {
       expect(error.message).toBe('test message');
     });
 
-    it('should create SuumoParsingError with correct name', () => {
-      const error = new SuumoParsingError('test message');
-      expect(error.name).toBe('SuumoParsingError');
-      expect(error.message).toBe('test message');
-    });
 
     it('should create GeolocationError with correct name', () => {
       const error = new GeolocationError('test message');

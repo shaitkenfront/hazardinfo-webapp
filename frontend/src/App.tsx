@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import './App.css';
 import {
   LocationInputComponent,
@@ -57,7 +57,7 @@ function App() {
     
     if (disasterData) {
       const disasterInfo: DisasterInfoData = {
-        coordinates: disasterData.coordinates,
+        coordinates: { ...disasterData.coordinates, source: coordinates.source },
         hazardInfo: disasterData.hazardInfo,
         shelters: disasterData.shelters,
         disasterHistory: disasterData.disasterHistory,
@@ -133,7 +133,7 @@ function App() {
           <LocationInputComponent
             onLocationSubmit={handleLocationInputSubmit}
             isLoading={locationLoadingState.isLoading}
-            error={locationLoadingState.error}
+            error={locationLoadingState.error || undefined}
             onClearError={clearLocationError}
           />
         </section>
@@ -226,7 +226,7 @@ function App() {
             {appState.showMap && appState.currentLocation && (
               <div className="map-container">
                 <MapComponent
-                  coordinates={appState.currentLocation}
+                  center={appState.currentLocation}
                   hazardInfo={appState.disasterInfo.hazardInfo}
                   shelters={appState.disasterInfo.shelters}
                 />
@@ -236,10 +236,10 @@ function App() {
             {/* 防災情報詳細表示 */}
             <div className="disaster-info-details">
               <DisasterInfoDisplayComponent
-                disasterInfo={appState.disasterInfo}
-                isLoading={disasterInfoLoadingState.isLoading}
-                error={disasterInfoLoadingState.error}
-                onClearError={clearDisasterInfoError}
+                data={appState.disasterInfo}
+                loading={disasterInfoLoadingState.isLoading}
+                error={disasterInfoLoadingState.error || undefined}
+                onRetry={clearDisasterInfoError}
               />
             </div>
           </section>
