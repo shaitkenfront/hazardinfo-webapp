@@ -1,17 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import { LocationService } from '../services/LocationService';
 import { validateLocationInput } from '../utils/inputValidation';
-import { InvalidInputError, LocationNotFoundError, SuumoParsingError, GeolocationError } from '../services/LocationService';
+import { InvalidInputError, LocationNotFoundError, GeolocationError } from '../services/LocationService';
 
 /**
  * 位置情報解決APIのリクエストボディ型定義
  */
 interface LocationResolveRequest {
-  type: 'address' | 'coordinates' | 'suumo' | 'geolocation';
+  type: 'address' | 'coordinates' | 'geolocation';
   address?: string;
   latitude?: string | number;
   longitude?: string | number;
-  url?: string;
 }
 
 /**
@@ -62,7 +61,7 @@ export class LocationController {
       }
 
       // 有効なtypeかチェック
-      const validTypes = ['address', 'coordinates', 'suumo', 'geolocation'];
+      const validTypes = ['address', 'coordinates', 'geolocation'];
       if (!validTypes.includes(requestBody.type)) {
         res.status(400).json({
           success: false,
@@ -109,19 +108,7 @@ export class LocationController {
           );
           break;
 
-        case 'suumo':
-          if (!requestBody.url) {
-            res.status(400).json({
-              success: false,
-              error: {
-                code: 'MISSING_URL',
-                message: 'SUUMO URLが指定されていません'
-              }
-            } as LocationResolveResponse);
-            return;
-          }
-          coordinates = await this.locationService.extractLocationFromSuumo(requestBody.url);
-          break;
+
 
         case 'geolocation':
           if (requestBody.latitude === undefined || requestBody.longitude === undefined) {
@@ -186,16 +173,7 @@ export class LocationController {
         return;
       }
 
-      if (error instanceof SuumoParsingError) {
-        res.status(400).json({
-          success: false,
-          error: {
-            code: 'SUUMO_PARSING_ERROR',
-            message: error.message
-          }
-        } as LocationResolveResponse);
-        return;
-      }
+
 
       if (error instanceof GeolocationError) {
         res.status(400).json({

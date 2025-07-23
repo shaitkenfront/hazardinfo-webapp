@@ -20,13 +20,6 @@ export interface ILocationService {
   parseCoordinates(lat: string, lng: string): Promise<Coordinates>;
 
   /**
-   * SUUMO URLから物件の位置情報を抽出
-   * @param url SUUMO URL
-   * @returns 座標情報
-   */
-  extractLocationFromSuumo(url: string): Promise<Coordinates>;
-
-  /**
    * 現在地を取得（フロントエンド用）
    * @returns 座標情報
    */
@@ -58,12 +51,7 @@ export class InvalidInputError extends Error {
   }
 }
 
-export class SuumoParsingError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'SuumoParsingError';
-  }
-}
+
 
 export class GeolocationError extends Error {
   constructor(message: string) {
@@ -138,36 +126,7 @@ export class LocationService implements ILocationService {
     };
   }
 
-  /**
-   * SUUMO URLから位置情報を抽出
-   */
-  async extractLocationFromSuumo(url: string): Promise<Coordinates> {
-    if (!url || !this.isValidSuumoUrl(url)) {
-      throw new SuumoParsingError('有効なSUUMO URLを入力してください');
-    }
 
-    try {
-      // SUUMO URLから物件情報を取得
-      const locationData = await this.parseSuumoUrl(url);
-      
-      if (!locationData) {
-        throw new SuumoParsingError('SUUMO URLから位置情報を取得できませんでした');
-      }
-
-      return {
-        latitude: locationData.latitude,
-        longitude: locationData.longitude,
-        address: locationData.address,
-        source: 'suumo'
-      };
-    } catch (error) {
-      if (error instanceof SuumoParsingError) {
-        throw error;
-      }
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      throw new SuumoParsingError(`SUUMO URL解析エラー: ${errorMessage}`);
-    }
-  }
 
   /**
    * 現在地を取得（ブラウザのGeolocation API用）
@@ -237,150 +196,5 @@ export class LocationService implements ILocationService {
     return [];
   }
 
-  /**
-   * SUUMO URLの妥当性をチェック
-   */
-  private isValidSuumoUrl(url: string): boolean {
-    try {
-      const urlObj = new URL(url);
-      return urlObj.hostname.includes('suumo.jp') || urlObj.hostname === 'suumo.jp';
-    } catch {
-      return false;
-    }
-  }
 
-  /**
-   * SUUMO URLを解析して位置情報を取得
-   */
-  private async parseSuumoUrl(url: string): Promise<{latitude: number, longitude: number, address?: string} | null> {
-    try {
-      const urlObj = new URL(url);
-      
-      // 賃貸物件のURL解析
-      if (url.includes('/chintai/')) {
-        return this.parseChintaiUrl(urlObj);
-      }
-      
-      // 分譲マンションのURL解析
-      if (url.includes('/mansion/')) {
-        return this.parseMansionUrl(urlObj);
-      }
-      
-      // 新築一戸建てのURL解析
-      if (url.includes('/ikkodate/')) {
-        return this.parseIkkodateUrl(urlObj);
-      }
-      
-      // 中古一戸建てのURL解析
-      if (url.includes('/chukoikkodate/')) {
-        return this.parseChukoIkkodateUrl(urlObj);
-      }
-      
-      // 土地のURL解析
-      if (url.includes('/tochi/')) {
-        return this.parseTochiUrl(urlObj);
-      }
-
-      // サポートされていないURLパターン
-      throw new SuumoParsingError('サポートされていないSUUMO URLパターンです');
-    } catch (error) {
-      throw new SuumoParsingError(`URL解析中にエラーが発生しました: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }
-
-  /**
-   * 賃貸物件URLを解析
-   */
-  private parseChintaiUrl(urlObj: URL): {latitude: number, longitude: number, address?: string} | null {
-    // 実際の実装では、URLから物件IDを抽出してAPIを呼び出すか、
-    // ページをスクレイピングして位置情報を取得する
-    
-    // モックデータ: URLパターンに基づいて異なる位置を返す
-    const pathname = urlObj.pathname;
-    
-    if (pathname.includes('tokyo') || pathname.includes('13')) {
-      return {
-        latitude: 35.6762,
-        longitude: 139.6503,
-        address: '東京都渋谷区'
-      };
-    }
-    
-    if (pathname.includes('osaka') || pathname.includes('27')) {
-      return {
-        latitude: 34.6937,
-        longitude: 135.5023,
-        address: '大阪府大阪市'
-      };
-    }
-    
-    if (pathname.includes('kanagawa') || pathname.includes('14')) {
-      return {
-        latitude: 35.4478,
-        longitude: 139.6425,
-        address: '神奈川県横浜市'
-      };
-    }
-
-    // デフォルトは東京駅周辺
-    return {
-      latitude: 35.6812,
-      longitude: 139.7671,
-      address: '東京都千代田区'
-    };
-  }
-
-  /**
-   * 分譲マンションURLを解析
-   */
-  private parseMansionUrl(urlObj: URL): {latitude: number, longitude: number, address?: string} | null {
-    const pathname = urlObj.pathname;
-    
-    // 地域コードまたは地域名から位置を推定
-    if (pathname.includes('tokyo') || pathname.includes('13')) {
-      return {
-        latitude: 35.6895,
-        longitude: 139.6917,
-        address: '東京都'
-      };
-    }
-    
-    if (pathname.includes('osaka') || pathname.includes('27')) {
-      return {
-        latitude: 34.6937,
-        longitude: 135.5023,
-        address: '大阪府'
-      };
-    }
-
-    return {
-      latitude: 35.6812,
-      longitude: 139.7671,
-      address: '東京都'
-    };
-  }
-
-  /**
-   * 新築一戸建てURLを解析
-   */
-  private parseIkkodateUrl(urlObj: URL): {latitude: number, longitude: number, address?: string} | null {
-    // 新築一戸建ての場合も同様の処理
-    return this.parseMansionUrl(urlObj);
-  }
-
-  /**
-   * 中古一戸建てURLを解析
-   */
-  private parseChukoIkkodateUrl(urlObj: URL): {latitude: number, longitude: number, address?: string} | null {
-    // 中古一戸建ての場合も同様の処理
-    return this.parseMansionUrl(urlObj);
-  }
-
-  /**
-   * 土地URLを解析
-   */
-  private parseTochiUrl(urlObj: URL): {latitude: number, longitude: number, address?: string} | null {
-    // 土地の場合も同様の処理
-    return this.parseMansionUrl(urlObj);
-  }
 }

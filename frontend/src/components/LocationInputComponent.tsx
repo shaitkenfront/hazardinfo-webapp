@@ -6,7 +6,7 @@ import './LocationInputComponent.css';
 /**
  * 入力方式の種類
  */
-export type InputType = 'address' | 'coordinates' | 'suumo' | 'geolocation';
+export type InputType = 'address' | 'coordinates' | 'geolocation';
 
 /**
  * バリデーションエラーの種類
@@ -34,7 +34,6 @@ interface FormState {
   address: string;
   latitude: string;
   longitude: string;
-  suumoUrl: string;
 }
 
 /**
@@ -50,8 +49,7 @@ export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
     inputType: 'address',
     address: '',
     latitude: '',
-    longitude: '',
-    suumoUrl: ''
+    longitude: ''
   });
 
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
@@ -104,27 +102,7 @@ export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
     return errors;
   }, []);
 
-  /**
-   * SUUMO URLのバリデーション
-   */
-  const validateSuumoUrl = useCallback((url: string): ValidationError[] => {
-    const errors: ValidationError[] = [];
-    
-    if (!url.trim()) {
-      errors.push({ field: 'suumoUrl', message: 'SUUMO URLを入力してください' });
-    } else {
-      try {
-        const urlObj = new URL(url);
-        if (!urlObj.hostname.includes('suumo.jp')) {
-          errors.push({ field: 'suumoUrl', message: '有効なSUUMO URLを入力してください' });
-        }
-      } catch {
-        errors.push({ field: 'suumoUrl', message: '有効なURLを入力してください' });
-      }
-    }
-    
-    return errors;
-  }, []);
+
 
   /**
    * リアルタイムバリデーション
@@ -139,9 +117,6 @@ export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
       case 'coordinates':
         errors = validateCoordinates(formState.latitude, formState.longitude);
         break;
-      case 'suumo':
-        errors = validateSuumoUrl(formState.suumoUrl);
-        break;
       case 'geolocation':
         // 現在地取得の場合はバリデーション不要
         break;
@@ -149,7 +124,7 @@ export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
     
     setValidationErrors(errors);
     return errors.length === 0;
-  }, [formState, validateAddress, validateCoordinates, validateSuumoUrl]);
+  }, [formState, validateAddress, validateCoordinates]);
 
   /**
    * フォーム状態の更新
@@ -221,14 +196,6 @@ export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
             source: 'coordinates'
           };
           break;
-        case 'suumo':
-          coordinates = {
-            latitude: 0, // バックエンドで解決される
-            longitude: 0,
-            address: formState.suumoUrl.trim(),
-            source: 'suumo'
-          };
-          break;
         default:
           throw new Error('無効な入力方式です');
       }
@@ -290,17 +257,7 @@ export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
           />
           緯度経度で検索
         </label>
-        <label>
-          <input
-            type="radio"
-            name="inputType"
-            value="suumo"
-            checked={formState.inputType === 'suumo'}
-            onChange={() => handleInputTypeChange('suumo')}
-            disabled={isFormDisabled}
-          />
-          SUUMO URLで検索
-        </label>
+
         <label>
           <input
             type="radio"
@@ -372,24 +329,7 @@ export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
           </>
         )}
 
-        {/* SUUMO URL入力 */}
-        {formState.inputType === 'suumo' && (
-          <div className="form-group">
-            <label htmlFor="suumoUrl">SUUMO URL</label>
-            <input
-              id="suumoUrl"
-              type="url"
-              value={formState.suumoUrl}
-              onChange={(e) => updateFormState({ suumoUrl: e.target.value })}
-              placeholder="例: https://suumo.jp/..."
-              disabled={isFormDisabled}
-              className={getFieldError('suumoUrl') ? 'error' : ''}
-            />
-            {getFieldError('suumoUrl') && (
-              <span className="error-message">{getFieldError('suumoUrl')}</span>
-            )}
-          </div>
-        )}
+
 
         {/* 現在地取得の説明 */}
         {formState.inputType === 'geolocation' && (

@@ -51,9 +51,7 @@ test.describe('統合テスト', () => {
     await expect(page.locator('[data-testid="latitude-input"]')).toBeVisible();
     await expect(page.locator('[data-testid="longitude-input"]')).toBeVisible();
     
-    // 3. SUUMO URL入力モード
-    await page.click('[data-testid="input-mode-suumo"]');
-    await expect(page.locator('[data-testid="suumo-url-input"]')).toBeVisible();
+
     
     // 4. 現在地取得モード
     await page.click('[data-testid="input-mode-geolocation"]');

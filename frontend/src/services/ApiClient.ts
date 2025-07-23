@@ -4,11 +4,10 @@ import { Coordinates, HazardInfo, Shelter, DisasterEvent, WeatherAlert } from '.
  * 位置情報解決APIのリクエスト型定義
  */
 export interface LocationResolveRequest {
-  type: 'address' | 'coordinates' | 'suumo' | 'geolocation';
+  type: 'address' | 'coordinates' | 'geolocation';
   address?: string;
   latitude?: string | number;
   longitude?: string | number;
-  url?: string;
 }
 
 /**
@@ -196,15 +195,7 @@ export class ApiClient {
     });
   }
 
-  /**
-   * SUUMO URLから位置情報を取得する
-   */
-  async resolveSuumoUrl(url: string): Promise<Coordinates> {
-    return this.resolveLocation({
-      type: 'suumo',
-      url,
-    });
-  }
+
 
   /**
    * 現在地の位置情報を処理する

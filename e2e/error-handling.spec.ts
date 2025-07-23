@@ -128,11 +128,6 @@ test.describe('エラーハンドリング機能', () => {
     await expect(page.locator('[data-testid="validation-error"]')).toBeVisible();
     await expect(page.locator('[data-testid="validation-error"]')).toContainText('緯度は-90から90の範囲で入力してください');
     
-    // 3. SUUMO URL入力
-    await page.click('[data-testid="input-mode-suumo"]');
-    await page.fill('[data-testid="suumo-url-input"]', 'https://example.com'); // SUUMOではないURL
-    await page.click('[data-testid="search-button"]');
-    await expect(page.locator('[data-testid="validation-error"]')).toBeVisible();
-    await expect(page.locator('[data-testid="validation-error"]')).toContainText('SUUMO URLを入力してください');
+
   });
 });

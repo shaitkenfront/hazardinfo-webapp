@@ -76,12 +76,11 @@ function App() {
    * 位置情報入力コンポーネントからの位置解決要求処理
    */
   const handleLocationInputSubmit = useCallback(async (
-    type: 'address' | 'coordinates' | 'suumo' | 'geolocation',
+    type: 'address' | 'coordinates' | 'geolocation',
     params: {
       address?: string;
       latitude?: number;
       longitude?: number;
-      url?: string;
     }
   ) => {
     const coordinates = await resolveLocation(type, params);
@@ -125,7 +124,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h1>災害情報一覧化アプリ</h1>
-        <p>住所、緯度経度、SUUMO URL、現在地から防災情報を取得します</p>
+        <p>住所、緯度経度、現在地から防災情報を取得します</p>
       </header>
 
       <main className="App-main">
@@ -194,7 +193,6 @@ function App() {
                   <strong>取得方法:</strong> {
                     appState.currentLocation.source === 'address' ? '住所' :
                     appState.currentLocation.source === 'coordinates' ? '緯度経度' :
-                    appState.currentLocation.source === 'suumo' ? 'SUUMO URL' :
                     appState.currentLocation.source === 'geolocation' ? '現在地' : '不明'
                   }
                 </p>
@@ -255,7 +253,7 @@ function App() {
               <div className="usage-steps">
                 <div className="usage-step">
                   <h4>1. 位置情報を入力</h4>
-                  <p>住所、緯度経度、SUUMO URL、または現在地から位置を指定してください。</p>
+                  <p>住所、緯度経度、または現在地から位置を指定してください。</p>
                 </div>
                 <div className="usage-step">
                   <h4>2. 防災情報を確認</h4>

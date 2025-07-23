@@ -20,12 +20,11 @@ export function useApiClient(apiClient: ApiClient) {
    * 位置情報解決のラッパー関数
    */
   const resolveLocation = useCallback(async (
-    type: 'address' | 'coordinates' | 'suumo' | 'geolocation',
+    type: 'address' | 'coordinates' | 'geolocation',
     params: {
       address?: string;
       latitude?: number;
       longitude?: number;
-      url?: string;
     }
   ): Promise<Coordinates | null> => {
     setLocationLoadingState({ isLoading: true, error: null });
@@ -48,12 +47,7 @@ export function useApiClient(apiClient: ApiClient) {
           result = await apiClient.resolveCoordinates(params.latitude, params.longitude);
           break;
 
-        case 'suumo':
-          if (!params.url) {
-            throw new Error('SUUMO URLが指定されていません');
-          }
-          result = await apiClient.resolveSuumoUrl(params.url);
-          break;
+
 
         case 'geolocation':
           if (params.latitude === undefined || params.longitude === undefined) {
