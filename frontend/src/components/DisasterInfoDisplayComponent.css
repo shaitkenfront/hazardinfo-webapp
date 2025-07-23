@@ -1,0 +1,388 @@
+.disaster-info-display {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* ローディング状態 */
+.disaster-info-display.loading {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* エラー状態 */
+.disaster-info-display.error {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.error-content {
+  background: #ffebee;
+  border: 1px solid #f8d7da;
+  border-radius: 8px;
+  padding: 30px;
+  color: #721c24;
+}
+
+.error-content h3 {
+  margin-bottom: 15px;
+  color: #d32f2f;
+}
+
+.retry-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.retry-button:hover {
+  background: #0056b3;
+}
+
+/* データなし状態 */
+.disaster-info-display.no-data {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+}
+
+/* 位置情報表示 */
+.location-info {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+  text-align: center;
+  border: 1px solid #dee2e6;
+}
+
+.location-info h2 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.location-address {
+  font-size: 18px;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 10px;
+}
+
+.location-coordinates {
+  font-size: 14px;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* セクション */
+.info-section {
+  margin-bottom: 30px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #007bff;
+}
+
+/* データなしメッセージ */
+.no-data {
+  text-align: center;
+  padding: 30px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+}
+
+/* 共通のアイテムスタイル */
+.hazard-item,
+.shelter-item,
+.history-item,
+.alert-item {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s;
+}
+
+.hazard-item:hover,
+.shelter-item:hover,
+.history-item:hover,
+.alert-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ヘッダー */
+.hazard-header,
+.shelter-header,
+.history-header,
+.alert-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid transparent;
+}
+
+.shelter-header,
+.history-header {
+  background: #f8f9fa;
+}
+
+.shelter-header:hover,
+.history-header:hover {
+  background: #e9ecef;
+}
+
+/* タイトル */
+.hazard-title,
+.shelter-title,
+.history-title,
+.alert-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+.hazard-title h4,
+.shelter-title h4,
+.history-title h4,
+.alert-title h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* リスクレベル・距離・日付表示 */
+.risk-level,
+.alert-level {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid currentColor;
+}
+
+.distance,
+.date {
+  font-size: 14px;
+  color: #6c757d;
+  font-weight: 500;
+  background: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+}
+
+/* 展開ボタン */
+.expand-button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.expand-button:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+/* 詳細表示 */
+.hazard-details,
+.shelter-details,
+.history-details,
+.alert-details {
+  padding: 20px;
+  border-top: 1px solid #dee2e6;
+  background: #fafafa;
+}
+
+.description {
+  margin-bottom: 15px;
+  line-height: 1.6;
+  color: #495057;
+}
+
+.metadata {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.metadata p {
+  margin-bottom: 8px;
+}
+
+.metadata strong {
+  color: #495057;
+}
+
+/* 詳細リンク */
+.detail-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.detail-link:hover {
+  text-decoration: underline;
+}
+
+/* 設備リスト */
+.facilities {
+  margin-top: 15px;
+}
+
+.facilities ul {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+}
+
+.facilities li {
+  margin-bottom: 4px;
+  color: #495057;
+}
+
+/* リスト */
+.hazard-list,
+.shelter-list,
+.history-list,
+.alert-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+  .disaster-info-display {
+    margin: 10px;
+    padding: 15px;
+  }
+
+  .location-info {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: 18px;
+  }
+
+  .hazard-header,
+  .shelter-header,
+  .history-header,
+  .alert-header {
+    padding: 12px 15px;
+  }
+
+  .hazard-title,
+  .shelter-title,
+  .history-title,
+  .alert-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .hazard-details,
+  .shelter-details,
+  .history-details,
+  .alert-details {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .disaster-info-display {
+    margin: 5px;
+    padding: 10px;
+  }
+
+  .location-info {
+    padding: 12px;
+  }
+
+  .location-address {
+    font-size: 16px;
+  }
+
+  .section-title {
+    font-size: 16px;
+  }
+
+  .hazard-title h4,
+  .shelter-title h4,
+  .history-title h4,
+  .alert-title h4 {
+    font-size: 14px;
+  }
+
+  .risk-level,
+  .alert-level,
+  .distance,
+  .date {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+}
+
+/* アクセシビリティ */
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner {
+    animation: none;
+  }
+  
+  * {
+    transition: none !important;
+  }
+}
+
+/* ハイコントラストモード */
+@media (prefers-contrast: high) {
+  .hazard-item,
+  .shelter-item,
+  .history-item,
+  .alert-item {
+    border: 2px solid #000;
+  }
+  
+  .risk-level,
+  .alert-level {
+    border: 2px solid currentColor;
+  }
+}

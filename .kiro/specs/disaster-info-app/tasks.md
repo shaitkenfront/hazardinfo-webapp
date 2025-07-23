@@ -161,8 +161,13 @@
   - LocationInputComponentのユニットテストを作成
   - _要件: 1.1, 2.1, 3.1, 4.1_
 
-- [ ] 9. フロントエンド表示コンポーネントの実装
-- [ ] 9.1 DisasterInfoDisplayComponentの実装
+- [-] 9. フロントエンド表示コンポーネントの実装
+
+
+- [x] 9.1 DisasterInfoDisplayComponentの実装
+
+
+
   - 防災情報の一覧表示UIを実装
   - リスクレベル別の色分け表示機能を実装
   - 詳細情報の展開/折りたたみ機能を実装
