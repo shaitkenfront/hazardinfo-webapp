@@ -22,7 +22,7 @@
 ### フロントエンド コンポーネント
 
 #### 1. LocationInputComponent
-- 住所、緯度経度、SUUMO URL、現在地の入力を統合
+- 住所、緯度経度、現在地の入力を統合
 - 入力方式の切り替え機能
 - バリデーション機能
 
@@ -42,7 +42,6 @@
 interface LocationService {
   resolveAddress(address: string): Promise<Coordinates>
   parseCoordinates(lat: string, lng: string): Promise<Coordinates>
-  extractLocationFromSuumo(url: string): Promise<Coordinates>
   getCurrentLocation(): Promise<Coordinates>
 }
 ```
@@ -120,7 +119,6 @@ interface DisasterEvent {
 2. **InvalidInputError**: 入力形式が無効
 3. **ExternalAPIError**: 外部API呼び出しエラー
 4. **GeolocationError**: 位置情報取得エラー
-5. **SuumoParsingError**: SUUMO URL解析エラー
 
 ### エラー処理戦略
 - フロントエンドでユーザーフレンドリーなエラーメッセージ表示
@@ -148,7 +146,6 @@ interface DisasterEvent {
 ### テストデータ
 - 実際の住所データセット
 - 様々な災害リスクレベルのサンプル
-- SUUMO URLのサンプル
 
 ## セキュリティ考慮事項
 
