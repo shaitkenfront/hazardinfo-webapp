@@ -182,7 +182,7 @@ export class LocationService implements ILocationService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: any = await response.json();
       
       if (data.status === 'ZERO_RESULTS') {
         return [];

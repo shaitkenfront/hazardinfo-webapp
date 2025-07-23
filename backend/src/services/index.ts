@@ -3,7 +3,6 @@ export {
   ILocationService,
   LocationNotFoundError,
   InvalidInputError,
-  SuumoParsingError,
   GeolocationError
 } from './LocationService';
 
