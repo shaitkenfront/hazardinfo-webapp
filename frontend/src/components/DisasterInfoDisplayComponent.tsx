@@ -90,14 +90,15 @@ export const DisasterInfoDisplayComponent: React.FC<DisasterInfoDisplayComponent
   /**
    * 日付のフォーマット
    */
-  const formatDate = useCallback((date: Date): string => {
+  const formatDate = useCallback((date: Date | string): string => {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
     return new Intl.DateTimeFormat('ja-JP', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    }).format(date);
+    }).format(dateObj);
   }, []);
 
   /**
@@ -256,7 +257,11 @@ export const DisasterInfoDisplayComponent: React.FC<DisasterInfoDisplayComponent
     }
 
     // 日付順にソート（新しい順）
-    const sortedHistory = [...data.disasterHistory].sort((a, b) => b.date.getTime() - a.date.getTime());
+    const sortedHistory = [...data.disasterHistory].sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return dateB.getTime() - dateA.getTime();
+    });
 
     return (
       <div className="history-list">
