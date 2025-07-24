@@ -83,10 +83,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 
       // OpenStreetMapタイルレイヤーを追加
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        updateWhenIdle: false,
-        updateWhenZooming: false,
-        keepBuffer: 2
+        attribution: '© OpenStreetMap contributors'
       }).addTo(map);
 
       // マーカーレイヤーグループを追加
@@ -106,11 +103,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 
       mapInstanceRef.current = map;
       
-      // タイル表示の正常化のため、短時間後に再描画
-      setTimeout(() => {
-        map.invalidateSize();
-        setIsMapReady(true);
-      }, 100);
+      setIsMapReady(true);
     } catch (error) {
       console.error('地図の初期化に失敗しました:', error);
     }
