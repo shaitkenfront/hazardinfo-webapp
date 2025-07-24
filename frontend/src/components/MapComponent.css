@@ -183,6 +183,15 @@
   font-family: inherit;
 }
 
+/* 地図タイルの表示順序を修正 */
+.leaflet-tile-container {
+  transform: translate3d(0, 0, 0);
+}
+
+.leaflet-tile {
+  transform: translate3d(0, 0, 0);
+}
+
 .leaflet-popup-tip {
   background-color: white;
 }
