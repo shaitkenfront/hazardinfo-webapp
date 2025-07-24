@@ -331,14 +331,18 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     return `${(distance / 1000).toFixed(1)}km`;
   };
 
-  const formatDate = (date: Date): string => {
+  const formatDate = (date: Date | string): string => {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    if (isNaN(dateObj.getTime())) {
+      return '日付不明';
+    }
     return new Intl.DateTimeFormat('ja-JP', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    }).format(date);
+    }).format(dateObj);
   };
 
   return (
