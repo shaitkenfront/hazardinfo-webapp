@@ -1,0 +1,166 @@
+.location-input-component {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.location-input-component h2 {
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+.input-type-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.input-type-selector label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #555;
+  transition: color 0.2s;
+}
+
+.input-type-selector label:hover {
+  color: #007bff;
+}
+
+.input-type-selector input[type="radio"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.location-form {
+  background: white;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.form-group input.error {
+  border-color: #dc3545;
+}
+
+.form-group input.error:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.form-group input:disabled {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.error-message {
+  display: block;
+  margin-top: 5px;
+  color: #dc3545;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.form-group p {
+  margin: 0;
+  padding: 15px;
+  background: #e3f2fd;
+  border-radius: 4px;
+  color: #1976d2;
+  border-left: 4px solid #2196f3;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 15px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.submit-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submit-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+  .location-input-component {
+    margin: 10px;
+    padding: 15px;
+  }
+  
+  .input-type-selector {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .form-group input {
+    font-size: 16px; /* iOS のズーム防止 */
+  }
+}
+
+@media (max-width: 480px) {
+  .location-input-component {
+    margin: 5px;
+    padding: 10px;
+  }
+  
+  .location-form {
+    padding: 15px;
+  }
+}
