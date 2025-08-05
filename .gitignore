@@ -196,3 +196,5 @@ secrets.json
 
 # Crush
 .crush/
+.crush.json
+CRUSH.md

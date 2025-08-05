@@ -2,22 +2,13 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { GeolocationService } from '../services/GeolocationService';
 import './LocationInputComponent.css';
 
-/**
- * 入力方式の種類
- */
-export type InputType = 'address' | 'coordinates' | 'geolocation';
+export type InputType = 'addressOrCoordinates' | 'geolocation';
 
-/**
- * バリデーションエラーの種類
- */
 export interface ValidationError {
   field: string;
   message: string;
 }
 
-/**
- * LocationInputComponentのProps
- */
 export interface LocationInputComponentProps {
   onLocationSubmit: (
     type: 'address' | 'coordinates' | 'geolocation',
@@ -32,55 +23,40 @@ export interface LocationInputComponentProps {
   onClearError?: () => void;
 }
 
-/**
- * 入力フォームの状態
- */
 interface FormState {
   inputType: InputType;
-  address: string;
-  latitude: string;
-  longitude: string;
+  addressOrCoordinates: string;
 }
 
-/**
- * 位置情報入力コンポーネント
- */
 export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
   onLocationSubmit,
   isLoading = false
 }) => {
   const [formState, setFormState] = useState<FormState>({
-    inputType: 'address',
-    address: '',
-    latitude: '',
-    longitude: ''
+    inputType: 'addressOrCoordinates',
+    addressOrCoordinates: ''
   });
 
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const geolocationService = new GeolocationService();
 
-  /**
-   * 住所のバリデーション
-   */
-  const validateAddress = useCallback((address: string): ValidationError[] => {
+  const validateAddressOrCoordinates = useCallback((input: string): ValidationError[] => {
     const errors: ValidationError[] = [];
-    
-    if (!address.trim()) {
-      errors.push({ field: 'address', message: '住所を入力してください' });
-    } else if (address.trim().length < 3) {
-      errors.push({ field: 'address', message: '住所は3文字以上で入力してください' });
+    const value = input.trim();
+    if (!value) {
+      errors.push({ field: 'addressOrCoordinates', message: '住所または緯度,経度を入力してください' });
+    } else {
+      const coordMatch = value.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
+      if (!coordMatch && value.length < 3) {
+        errors.push({ field: 'addressOrCoordinates', message: '住所は3文字以上で入力してください' });
+      }
     }
-    
     return errors;
   }, []);
 
-  /**
-   * 緯度経度のバリデーション
-   */
   const validateCoordinates = useCallback((lat: string, lng: string): ValidationError[] => {
     const errors: ValidationError[] = [];
-    
     if (!lat.trim()) {
       errors.push({ field: 'latitude', message: '緯度を入力してください' });
     } else {
@@ -91,7 +67,6 @@ export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
         errors.push({ field: 'latitude', message: '日本国内の緯度（24-46度）を入力してください' });
       }
     }
-    
     if (!lng.trim()) {
       errors.push({ field: 'longitude', message: '経度を入力してください' });
     } else {
@@ -102,56 +77,34 @@ export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
         errors.push({ field: 'longitude', message: '日本国内の経度（129-146度）を入力してください' });
       }
     }
-    
     return errors;
   }, []);
 
-
-
-  /**
-   * リアルタイムバリデーション
-   */
   const performValidation = useCallback(() => {
     let errors: ValidationError[] = [];
-    
     switch (formState.inputType) {
-      case 'address':
-        errors = validateAddress(formState.address);
-        break;
-      case 'coordinates':
-        errors = validateCoordinates(formState.latitude, formState.longitude);
+      case 'addressOrCoordinates':
+        errors = validateAddressOrCoordinates(formState.addressOrCoordinates);
         break;
       case 'geolocation':
-        // 現在地取得の場合はバリデーション不要
         break;
     }
-    
     setValidationErrors(errors);
     return errors.length === 0;
-  }, [formState, validateAddress, validateCoordinates]);
+  }, [formState, validateAddressOrCoordinates, validateCoordinates]);
 
-  /**
-   * フォーム状態の更新
-   */
   const updateFormState = useCallback((updates: Partial<FormState>) => {
     setFormState(prev => ({ ...prev, ...updates }));
   }, []);
 
-  /**
-   * 入力方式の変更
-   */
   const handleInputTypeChange = useCallback((inputType: InputType) => {
     updateFormState({ inputType });
     setValidationErrors([]);
   }, [updateFormState]);
 
-  /**
-   * 現在地取得
-   */
   const handleGetCurrentLocation = useCallback(async () => {
     setIsGettingLocation(true);
     setValidationErrors([]);
-    
     try {
       const coordinates = await geolocationService.getCurrentLocation();
       await onLocationSubmit('geolocation', {
@@ -159,66 +112,53 @@ export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
         longitude: coordinates.longitude
       });
     } catch (error) {
-      // エラー処理は親コンポーネントで行われる
       console.error('Geolocation error:', error);
     } finally {
       setIsGettingLocation(false);
     }
   }, [geolocationService, onLocationSubmit]);
 
-  /**
-   * フォーム送信
-   */
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (formState.inputType === 'geolocation') {
       await handleGetCurrentLocation();
       return;
     }
-    
     if (!performValidation()) {
       return;
     }
-    
     try {
       switch (formState.inputType) {
-        case 'address':
-          await onLocationSubmit('address', {
-            address: formState.address.trim()
-          });
+        case 'addressOrCoordinates': {
+          const value = formState.addressOrCoordinates.trim();
+          const coordMatch = value.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
+          if (coordMatch) {
+            await onLocationSubmit('coordinates', {
+              latitude: parseFloat(coordMatch[1]),
+              longitude: parseFloat(coordMatch[2])
+            });
+          } else {
+            await onLocationSubmit('address', { address: value });
+          }
           break;
-        case 'coordinates':
-          await onLocationSubmit('coordinates', {
-            latitude: parseFloat(formState.latitude),
-            longitude: parseFloat(formState.longitude)
-          });
-          break;
+        }
         default:
           throw new Error('無効な入力方式です');
       }
     } catch (error) {
-      // エラー処理は親コンポーネントで行われる
       console.error('Form submission error:', error);
     }
   }, [formState, performValidation, handleGetCurrentLocation, onLocationSubmit]);
 
-  /**
-   * リアルタイムバリデーションの実行
-   */
   useEffect(() => {
     if (formState.inputType !== 'geolocation') {
       const timeoutId = setTimeout(() => {
         performValidation();
-      }, 300); // 300ms のデバウンス
-      
+      }, 300);
       return () => clearTimeout(timeoutId);
     }
   }, [formState, performValidation]);
 
-  /**
-   * エラーメッセージの取得
-   */
   const getFieldError = useCallback((field: string): string | undefined => {
     return validationErrors.find(error => error.field === field)?.message;
   }, [validationErrors]);
@@ -229,32 +169,18 @@ export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
   return (
     <div className="location-input-component">
       <h2>位置情報の入力</h2>
-      
-      {/* 入力方式選択 */}
       <div className="input-type-selector">
         <label>
           <input
             type="radio"
             name="inputType"
-            value="address"
-            checked={formState.inputType === 'address'}
-            onChange={() => handleInputTypeChange('address')}
+            value="addressOrCoordinates"
+            checked={formState.inputType === 'addressOrCoordinates'}
+            onChange={() => handleInputTypeChange('addressOrCoordinates')}
             disabled={isFormDisabled}
           />
-          住所で検索
+          住所・緯度経度で検索
         </label>
-        <label>
-          <input
-            type="radio"
-            name="inputType"
-            value="coordinates"
-            checked={formState.inputType === 'coordinates'}
-            onChange={() => handleInputTypeChange('coordinates')}
-            disabled={isFormDisabled}
-          />
-          緯度経度で検索
-        </label>
-
         <label>
           <input
             type="radio"
@@ -269,73 +195,30 @@ export const LocationInputComponent: React.FC<LocationInputComponentProps> = ({
       </div>
 
       <form onSubmit={handleSubmit} className="location-form">
-        {/* 住所入力 */}
-        {formState.inputType === 'address' && (
+        {formState.inputType === 'addressOrCoordinates' && (
           <div className="form-group">
-            <label htmlFor="address">住所</label>
+            <label htmlFor="addressOrCoordinates">住所または緯度,経度</label>
             <input
-              id="address"
+              id="addressOrCoordinates"
               type="text"
-              value={formState.address}
-              onChange={(e) => updateFormState({ address: e.target.value })}
-              placeholder="例: 東京都千代田区丸の内1-1-1"
+              value={formState.addressOrCoordinates}
+              onChange={(e) => updateFormState({ addressOrCoordinates: e.target.value })}
+              placeholder="例: 東京都千代田区丸の内1-1-1 または 35.681236,139.767125"
               disabled={isFormDisabled}
-              className={getFieldError('address') ? 'error' : ''}
+              className={getFieldError('addressOrCoordinates') ? 'error' : ''}
             />
-            {getFieldError('address') && (
-              <span className="error-message">{getFieldError('address')}</span>
+            {getFieldError('addressOrCoordinates') && (
+              <span className="error-message">{getFieldError('addressOrCoordinates')}</span>
             )}
           </div>
         )}
 
-        {/* 緯度経度入力 */}
-        {formState.inputType === 'coordinates' && (
-          <>
-            <div className="form-group">
-              <label htmlFor="latitude">緯度</label>
-              <input
-                id="latitude"
-                type="number"
-                step="any"
-                value={formState.latitude}
-                onChange={(e) => updateFormState({ latitude: e.target.value })}
-                placeholder="例: 35.681236"
-                disabled={isFormDisabled}
-                className={getFieldError('latitude') ? 'error' : ''}
-              />
-              {getFieldError('latitude') && (
-                <span className="error-message">{getFieldError('latitude')}</span>
-              )}
-            </div>
-            <div className="form-group">
-              <label htmlFor="longitude">経度</label>
-              <input
-                id="longitude"
-                type="number"
-                step="any"
-                value={formState.longitude}
-                onChange={(e) => updateFormState({ longitude: e.target.value })}
-                placeholder="例: 139.767125"
-                disabled={isFormDisabled}
-                className={getFieldError('longitude') ? 'error' : ''}
-              />
-              {getFieldError('longitude') && (
-                <span className="error-message">{getFieldError('longitude')}</span>
-              )}
-            </div>
-          </>
-        )}
-
-
-
-        {/* 現在地取得の説明 */}
         {formState.inputType === 'geolocation' && (
           <div className="form-group">
             <p>現在地を取得して防災情報を表示します。位置情報の使用を許可してください。</p>
           </div>
         )}
 
-        {/* 送信ボタン */}
         <button
           type="submit"
           disabled={isFormDisabled || !canSubmit}
