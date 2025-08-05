@@ -23,7 +23,7 @@ const mockHazardInfo: HazardInfo[] = [
 ];
 
 const mockData: DisasterInfoData = {
-  coordinates: { latitude: 35.6762, longitude: 139.6503 },
+  coordinates: { latitude: 35.6762, longitude: 139.6503, source: 'address' as const },
   hazardInfo: mockHazardInfo,
   shelters: [],
   disasterHistory: [],
