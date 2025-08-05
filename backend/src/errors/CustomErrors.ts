@@ -46,16 +46,6 @@ export class GeolocationError extends Error {
   }
 }
 
-export class SuumoParsingError extends Error {
-  public readonly code = 'SUUMO_PARSING_ERROR';
-  public readonly statusCode = 400;
-
-  constructor(message: string = 'SUUMO URLの解析に失敗しました') {
-    super(message);
-    this.name = 'SuumoParsingError';
-    Object.setPrototypeOf(this, SuumoParsingError.prototype);
-  }
-}
 
 export class CacheError extends Error {
   public readonly code = 'CACHE_ERROR';
@@ -69,12 +59,11 @@ export class CacheError extends Error {
 }
 
 // Type guard functions
-export function isCustomError(error: any): error is LocationNotFoundError | InvalidInputError | ExternalAPIError | GeolocationError | SuumoParsingError | CacheError {
+export function isCustomError(error: any): error is LocationNotFoundError | InvalidInputError | ExternalAPIError | GeolocationError | CacheError {
   return error instanceof LocationNotFoundError ||
          error instanceof InvalidInputError ||
          error instanceof ExternalAPIError ||
          error instanceof GeolocationError ||
-         error instanceof SuumoParsingError ||
          error instanceof CacheError;
 }
 

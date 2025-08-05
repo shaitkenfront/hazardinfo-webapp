@@ -402,7 +402,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     const labels = {
       address: '住所から取得',
       coordinates: '座標指定',
-      suumo: 'SUUMO URLから取得',
       geolocation: '現在地取得'
     };
     return labels[source as keyof typeof labels] || source;

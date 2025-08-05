@@ -1,8 +1,7 @@
 import {
   InputValidationError,
   AddressValidator,
-  CoordinatesValidator,
-  SuumoUrlValidator
+  CoordinatesValidator
 } from '../inputValidation';
 
 describe('Input Validation', () => {
@@ -124,103 +123,4 @@ describe('Input Validation', () => {
     });
   });
 
-  describe('SuumoUrlValidator', () => {
-    describe('validate', () => {
-      it('should validate valid SUUMO URLs', () => {
-        const validUrls = [
-          'https://suumo.jp/jj/chintai/ichiran/FR301FC001/?ar=030&bs=040&ta=13&sc=13101&cb=0.0&ct=9999999&et=9999999&cn=9999999&mb=0&mt=9999999&shkr1=03&shkr2=03&shkr3=03&shkr4=03&fw2=',
-          'https://www.suumo.jp/jj/bukken/ichiran/JJ012FC001/?ar=030&bs=040&ta=13',
-          'https://suumo.jp/ms/chuko/ichiran/TA13/',
-          'https://suumo.jp/ikkodate/chuko/ichiran/TA13/'
-        ];
-
-        validUrls.forEach(url => {
-          expect(() => SuumoUrlValidator.validate(url)).not.toThrow();
-        });
-      });
-
-      it('should throw error for non-SUUMO URLs', () => {
-        const invalidUrls = [
-          'https://google.com',
-          'https://yahoo.co.jp',
-          'https://homes.co.jp/chintai/',
-          'https://athome.co.jp'
-        ];
-
-        invalidUrls.forEach(url => {
-          expect(() => SuumoUrlValidator.validate(url)).toThrow(InputValidationError);
-        });
-      });
-
-      it('should throw error for HTTP URLs', () => {
-        expect(() => SuumoUrlValidator.validate('http://suumo.jp/jj/chintai/ichiran/FR301FC001/')).toThrow(InputValidationError);
-      });
-
-      it('should throw error for invalid URL format', () => {
-        const invalidUrls = [
-          'not-a-url',
-          'suumo.jp',
-          'https://',
-          ''
-        ];
-
-        invalidUrls.forEach(url => {
-          expect(() => SuumoUrlValidator.validate(url)).toThrow(InputValidationError);
-        });
-      });
-
-      it('should throw error for unsupported SUUMO paths', () => {
-        const unsupportedUrls = [
-          'https://suumo.jp/',
-          'https://suumo.jp/about/',
-          'https://suumo.jp/unsupported/path/'
-        ];
-
-        unsupportedUrls.forEach(url => {
-          expect(() => SuumoUrlValidator.validate(url)).toThrow(InputValidationError);
-        });
-      });
-
-      it('should throw error for non-string input', () => {
-        expect(() => SuumoUrlValidator.validate(null as any)).toThrow(InputValidationError);
-        expect(() => SuumoUrlValidator.validate(123 as any)).toThrow(InputValidationError);
-        expect(() => SuumoUrlValidator.validate({} as any)).toThrow(InputValidationError);
-      });
-    });
-
-    describe('normalize', () => {
-      it('should normalize URLs correctly', () => {
-        expect(SuumoUrlValidator.normalize('  https://suumo.jp/test  ')).toBe('https://suumo.jp/test');
-        expect(SuumoUrlValidator.normalize('http://suumo.jp/test')).toBe('https://suumo.jp/test');
-        expect(SuumoUrlValidator.normalize('suumo.jp/test')).toBe('https://suumo.jp/test');
-      });
-
-      it('should handle invalid input gracefully', () => {
-        expect(SuumoUrlValidator.normalize(null as any)).toBe('');
-        expect(SuumoUrlValidator.normalize(undefined as any)).toBe('');
-        expect(SuumoUrlValidator.normalize('')).toBe('');
-      });
-    });
-
-    describe('extractPropertyId', () => {
-      it('should extract property ID from query parameters', () => {
-        const url = 'https://suumo.jp/jj/chintai/ichiran/FR301FC001/?bc=100001234567';
-        expect(SuumoUrlValidator.extractPropertyId(url)).toBe('100001234567');
-      });
-
-      it('should extract property ID from path', () => {
-        const url = 'https://suumo.jp/chintai/jnc_ABC123DEF/';
-        expect(SuumoUrlValidator.extractPropertyId(url)).toBe('ABC123DEF');
-      });
-
-      it('should return null for URLs without property ID', () => {
-        const url = 'https://suumo.jp/jj/chintai/ichiran/FR301FC001/';
-        expect(SuumoUrlValidator.extractPropertyId(url)).toBeNull();
-      });
-
-      it('should return null for invalid URLs', () => {
-        expect(SuumoUrlValidator.extractPropertyId('invalid-url')).toBeNull();
-      });
-    });
-  });
 });

@@ -134,12 +134,6 @@ describe('ApiClient', () => {
     });
   });
 
-  // SUUMO機能は削除されたため、この describe ブロック全体を無効化
-  describe.skip('resolveSuumoUrl (機能削除済み)', () => {
-    it('SUUMO URLから位置情報を正常に取得する', async () => {
-      // このテストは無効化されています - SUUMO機能が削除されたため
-    });
-  });
 
   describe('resolveGeolocation', () => {
     it('現在地の位置情報を正常に処理する', async () => {

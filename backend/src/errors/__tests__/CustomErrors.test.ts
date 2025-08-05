@@ -3,7 +3,6 @@ import {
   InvalidInputError,
   ExternalAPIError,
   GeolocationError,
-  SuumoParsingError,
   CacheError,
   isCustomError
 } from '../CustomErrors';
@@ -81,16 +80,6 @@ describe('CustomErrors', () => {
     });
   });
 
-  describe('SuumoParsingError', () => {
-    it('should create error with default message', () => {
-      const error = new SuumoParsingError();
-      
-      expect(error.name).toBe('SuumoParsingError');
-      expect(error.code).toBe('SUUMO_PARSING_ERROR');
-      expect(error.statusCode).toBe(400);
-      expect(error.message).toBe('SUUMO URLの解析に失敗しました');
-    });
-  });
 
   describe('CacheError', () => {
     it('should create error with default message', () => {
@@ -109,7 +98,6 @@ describe('CustomErrors', () => {
       expect(isCustomError(new InvalidInputError())).toBe(true);
       expect(isCustomError(new ExternalAPIError())).toBe(true);
       expect(isCustomError(new GeolocationError())).toBe(true);
-      expect(isCustomError(new SuumoParsingError())).toBe(true);
       expect(isCustomError(new CacheError())).toBe(true);
     });
 

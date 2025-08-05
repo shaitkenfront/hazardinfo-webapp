@@ -265,18 +265,6 @@ describe('MapComponent', () => {
       expect(mapContainer).toBeInTheDocument();
     });
 
-    it('SUUMOソースが処理される', () => {
-      const center: Coordinates = {
-        latitude: 35.6762,
-        longitude: 139.6503,
-        source: 'suumo'
-      };
-      
-      render(<MapComponent center={center} />);
-      
-      const mapContainer = document.querySelector('.map-container');
-      expect(mapContainer).toBeInTheDocument();
-    });
 
     it('現在地ソースが処理される', () => {
       const center: Coordinates = {

@@ -1,6 +1,5 @@
 export {
   InputValidationError,
   AddressValidator,
-  CoordinatesValidator,
-  SuumoUrlValidator
+  CoordinatesValidator
 } from './inputValidation';

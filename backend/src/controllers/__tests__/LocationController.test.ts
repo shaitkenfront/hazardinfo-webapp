@@ -164,7 +164,6 @@ describe('LocationController Integration Tests', () => {
       });
     });
 
-    // SUUMO URLによる位置情報解決テストは削除（機能が削除されたため）
 
     describe('現在地による位置情報解決', () => {
       it('有効な現在地座標で位置情報を取得できる', async () => {

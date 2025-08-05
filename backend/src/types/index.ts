@@ -5,7 +5,7 @@ export interface Coordinates {
   latitude: number;
   longitude: number;
   address?: string;
-  source: 'address' | 'coordinates' | 'geolocation' | 'suumo';
+  source: 'address' | 'coordinates' | 'geolocation';
 }
 
 /**

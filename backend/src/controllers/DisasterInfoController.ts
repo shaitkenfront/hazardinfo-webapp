@@ -137,6 +137,7 @@ export class DisasterInfoController {
   async getHazardInfo(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { lat, lng } = req.params;
+      const { types } = req.query;
 
       // パラメータの基本バリデーション
       if (!lat || !lng) {
@@ -181,7 +182,13 @@ export class DisasterInfoController {
         source: 'coordinates'
       };
 
-      const hazardInfo = await this.disasterInfoService.getHazardMapInfo(coordinates);
+      let hazardInfo = await this.disasterInfoService.getHazardMapInfo(coordinates);
+
+      // typesクエリパラメータが指定されている場合は、そのタイプのみフィルタリング
+      if (types && typeof types === 'string') {
+        const requestedTypes = types.split(',').map(type => type.trim());
+        hazardInfo = hazardInfo.filter(hazard => requestedTypes.includes(hazard.type));
+      }
 
       res.status(200).json({
         success: true,

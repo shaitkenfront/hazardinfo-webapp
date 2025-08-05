@@ -8,7 +8,6 @@ import { Coordinates } from '../../types';
 const mockApiClient = {
   resolveAddress: vi.fn(),
   resolveCoordinates: vi.fn(),
-  resolveSuumoUrl: vi.fn(),
   resolveGeolocation: vi.fn(),
   getDisasterInfo: vi.fn(),
   getHazardInfo: vi.fn(),
@@ -91,10 +90,6 @@ describe('useApiClient', () => {
       expect(resolveResult).toEqual(mockCoordinates);
     });
 
-    // SUUMO機能は削除されたため、このテストを無効化
-    it.skip('SUUMO URL解決が正常に動作する（機能削除済み）', async () => {
-      // このテストは無効化されています - SUUMO機能が削除されたため
-    });
 
     it('現在地解決が正常に動作する', async () => {
       const mockCoordinates: Coordinates = {

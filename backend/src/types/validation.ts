@@ -47,7 +47,7 @@ export function validateCoordinates(data: any): Coordinates {
   }
 
   // ソースのバリデーション
-  const validSources = ['address', 'coordinates', 'suumo', 'geolocation'];
+  const validSources = ['address', 'coordinates', 'geolocation'];
   if (!validSources.includes(source)) {
     throw new ValidationError(`Source must be one of: ${validSources.join(', ')}`, 'source');
   }

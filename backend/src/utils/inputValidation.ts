@@ -193,124 +193,6 @@ export class CoordinatesValidator {
   }
 }
 
-/**
- * SUUMO URLバリデーションクラス
- */
-export class SuumoUrlValidator {
-  private static readonly SUUMO_DOMAINS = [
-    'suumo.jp',
-    'www.suumo.jp'
-  ];
-
-  private static readonly VALID_PATH_PATTERNS = [
-    /\/jj\/chintai\/ichiran\/FR301FC001/,  // 賃貸物件一覧
-    /\/jj\/bukken\/ichiran\/JJ012FC001/,   // 新築マンション
-    /\/jj\/bukken\/ichiran\/JJ010FC001/,   // 新築一戸建て
-    /\/ms\/chuko\/ichiran\/TA13/,          // 中古マンション
-    /\/ikkodate\/chuko\/ichiran\/TA13/,    // 中古一戸建て
-    /\/chintai\/jnc_/,                    // 賃貸物件詳細
-    /\/ms\/shinchiku\/ichiran/,           // 新築マンション一覧
-    /\/ikkodate\/shinchiku\/ichiran/,     // 新築一戸建て一覧
-    /\/chintai\/[a-zA-Z0-9_]+/            // 賃貸物件（地域別）
-  ];
-
-  /**
-   * SUUMO URLをバリデーション
-   */
-  static validate(url: string): boolean {
-    if (!url || typeof url !== 'string') {
-      throw new InputValidationError('URLは文字列である必要があります', 'suumo_url');
-    }
-
-    const trimmedUrl = url.trim();
-
-    // URL形式の基本チェック
-    let parsedUrl: URL;
-    try {
-      parsedUrl = new URL(trimmedUrl);
-    } catch {
-      throw new InputValidationError('有効なURL形式で入力してください', 'suumo_url');
-    }
-
-    // HTTPSプロトコルチェック
-    if (parsedUrl.protocol !== 'https:') {
-      throw new InputValidationError('HTTPS URLを入力してください', 'suumo_url');
-    }
-
-    // SUUMOドメインチェック
-    if (!this.SUUMO_DOMAINS.includes(parsedUrl.hostname)) {
-      throw new InputValidationError('SUUMO（suumo.jp）のURLを入力してください', 'suumo_url');
-    }
-
-    // パスパターンチェック
-    if (!this.isValidSuumoPath(parsedUrl.pathname)) {
-      throw new InputValidationError('対応しているSUUMO物件ページのURLを入力してください', 'suumo_url');
-    }
-
-    return true;
-  }
-
-  /**
-   * SUUMOの有効なパスかチェック
-   */
-  private static isValidSuumoPath(pathname: string): boolean {
-    return this.VALID_PATH_PATTERNS.some(pattern => pattern.test(pathname));
-  }
-
-  /**
-   * SUUMO URLを正規化
-   */
-  static normalize(url: string): string {
-    if (!url || typeof url !== 'string') {
-      return '';
-    }
-
-    let trimmedUrl = url.trim();
-
-    // httpをhttpsに変換
-    if (trimmedUrl.startsWith('http://')) {
-      trimmedUrl = trimmedUrl.replace('http://', 'https://');
-    }
-
-    // プロトコルが省略されている場合は追加
-    if (!trimmedUrl.startsWith('https://') && !trimmedUrl.startsWith('http://')) {
-      trimmedUrl = 'https://' + trimmedUrl;
-    }
-
-    try {
-      const parsedUrl = new URL(trimmedUrl);
-      // 不要なクエリパラメータを削除（必要に応じて）
-      return parsedUrl.toString();
-    } catch {
-      return trimmedUrl;
-    }
-  }
-
-  /**
-   * SUUMO URLから物件IDを抽出
-   */
-  static extractPropertyId(url: string): string | null {
-    try {
-      const parsedUrl = new URL(url);
-      
-      // クエリパラメータから物件IDを抽出
-      const bc = parsedUrl.searchParams.get('bc');
-      if (bc) {
-        return bc;
-      }
-
-      // 賃貸物件詳細ページのパスから物件IDを抽出
-      const detailMatch = parsedUrl.pathname.match(/\/chintai\/jnc_([A-Z0-9]+)\//);
-      if (detailMatch) {
-        return detailMatch[1];
-      }
-
-      return null;
-    } catch {
-      return null;
-    }
-  }
-}
 
 /**
  * 位置情報解決APIのリクエストバリデーション結果
@@ -324,11 +206,10 @@ export interface LocationInputValidationResult {
  * 位置情報解決APIのリクエストボディ型定義
  */
 export interface LocationResolveRequest {
-  type: 'address' | 'coordinates' | 'suumo' | 'geolocation';
+  type: 'address' | 'coordinates' | 'geolocation';
   address?: string;
   latitude?: string | number;
   longitude?: string | number;
-  url?: string;
 }
 
 /**
@@ -344,9 +225,9 @@ export function validateLocationInput(request: LocationResolveRequest): Location
   }
 
   // 有効なtypeかチェック
-  const validTypes = ['address', 'coordinates', 'suumo', 'geolocation'];
+  const validTypes = ['address', 'coordinates', 'geolocation'];
   if (!validTypes.includes(request.type)) {
-    errors.push('typeは address, coordinates, suumo, geolocation のいずれかである必要があります');
+    errors.push('typeは address, coordinates, geolocation のいずれかである必要があります');
     return { isValid: false, errors };
   }
 
@@ -369,13 +250,6 @@ export function validateLocationInput(request: LocationResolveRequest): Location
         }
         break;
 
-      case 'suumo':
-        if (!request.url) {
-          errors.push('urlフィールドは必須です');
-        } else {
-          SuumoUrlValidator.validate(request.url);
-        }
-        break;
 
       case 'geolocation':
         if (request.latitude === undefined || request.longitude === undefined) {

@@ -10,11 +10,10 @@ const locationController = new LocationController();
  * 
  * リクエストボディ:
  * {
- *   type: 'address' | 'coordinates' | 'suumo' | 'geolocation',
+ *   type: 'address' | 'coordinates' | 'geolocation',
  *   address?: string,
  *   latitude?: string | number,
- *   longitude?: string | number,
- *   url?: string
+ *   longitude?: string | number
  * }
  * 
  * レスポンス:

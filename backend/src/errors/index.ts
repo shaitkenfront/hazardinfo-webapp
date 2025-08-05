@@ -3,7 +3,6 @@ export {
   InvalidInputError,
   ExternalAPIError,
   GeolocationError,
-  SuumoParsingError,
   CacheError,
   isCustomError,
   ErrorResponse

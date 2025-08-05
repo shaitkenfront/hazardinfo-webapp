@@ -136,12 +136,6 @@ describe('DisasterInfoService', () => {
         source: 'address'
       };
 
-      const suumoCoords: Coordinates = {
-        latitude: 35.6762,
-        longitude: 139.6503,
-        source: 'suumo'
-      };
-
       const geolocationCoords: Coordinates = {
         latitude: 35.6762,
         longitude: 139.6503,
@@ -149,12 +143,10 @@ describe('DisasterInfoService', () => {
       };
 
       const result1 = await service.getHazardMapInfo(addressCoords);
-      const result2 = await service.getHazardMapInfo(suumoCoords);
-      const result3 = await service.getHazardMapInfo(geolocationCoords);
+      const result2 = await service.getHazardMapInfo(geolocationCoords);
 
       expect(Array.isArray(result1)).toBe(true);
       expect(Array.isArray(result2)).toBe(true);
-      expect(Array.isArray(result3)).toBe(true);
     });
 
     it('should handle edge case coordinates', async () => {
@@ -553,12 +545,6 @@ describe('DisasterInfoService', () => {
         source: 'address'
       };
 
-      const suumoCoords: Coordinates = {
-        latitude: 35.6762,
-        longitude: 139.6503,
-        source: 'suumo'
-      };
-
       const geolocationCoords: Coordinates = {
         latitude: 35.6762,
         longitude: 139.6503,
@@ -566,12 +552,10 @@ describe('DisasterInfoService', () => {
       };
 
       const result1 = await service.getDisasterHistory(addressCoords);
-      const result2 = await service.getDisasterHistory(suumoCoords);
-      const result3 = await service.getDisasterHistory(geolocationCoords);
+      const result2 = await service.getDisasterHistory(geolocationCoords);
 
       expect(Array.isArray(result1)).toBe(true);
       expect(Array.isArray(result2)).toBe(true);
-      expect(Array.isArray(result3)).toBe(true);
       
       expect(result1.length).toBeGreaterThan(0);
       expect(result2.length).toBeGreaterThan(0);

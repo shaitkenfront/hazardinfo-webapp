@@ -6,7 +6,6 @@ import {
   InvalidInputError,
   ExternalAPIError,
   GeolocationError,
-  SuumoParsingError,
   CacheError
 } from './CustomErrors';
 
