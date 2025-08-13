@@ -18,7 +18,7 @@ test.describe('防災情報表示機能', () => {
     await expect(page.locator('[data-testid="hazard-info"]')).toBeVisible();
     
     // 各災害タイプの情報が表示されることを確認
-    const hazardTypes = ['flood', 'earthquake', 'landslide', 'tsunami', 'large_scale_fill'];
+    const hazardTypes = ['flood', 'earthquake', 'landslide', 'tsunami', 'large_fill_land'];
     
     for (const hazardType of hazardTypes) {
       const hazardElement = page.locator(`[data-testid="hazard-${hazardType}"]`);

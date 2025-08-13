@@ -326,7 +326,7 @@ export class ApiClient {
     longitude: number,
     onProgress?: (current: number, total: number, currentType: string) => void
   ): Promise<HazardInfo[]> {
-    const hazardTypes = ['earthquake', 'flood', 'tsunami', 'high_tide', 'large_fill_land', 'landslide'];
+    const hazardTypes = ['earthquake', 'flood', 'tsunami', 'high_tide', 'large_fill_land', 'landslide', 'flood_keizoku', 'naisui', 'kaokutoukai_hanran', 'kaokutoukai_kagan', 'avalanche'];
     const allHazardInfo: HazardInfo[] = [];
 
     for (let i = 0; i < hazardTypes.length; i++) {

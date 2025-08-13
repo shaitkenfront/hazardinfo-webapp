@@ -12,7 +12,7 @@ export interface Coordinates {
  * ハザード情報を表すインターフェース
  */
 export interface HazardInfo {
-  type: 'flood' | 'earthquake' | 'landslide' | 'tsunami' | 'large_scale_fill' | 'high_tide';
+  type: 'flood' | 'earthquake' | 'landslide' | 'tsunami' | 'large_fill_land' | 'high_tide' | 'flood_keizoku' | 'naisui' | 'kaokutoukai_hanran' | 'kaokutoukai_kagan' | 'avalanche';
   riskLevel: 'low' | 'medium' | 'high' | 'very_high';
   description: string;
   source: string;

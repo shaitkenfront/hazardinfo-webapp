@@ -49,8 +49,13 @@ const HAZARD_TYPE_LABELS: Record<string, string> = {
   earthquake: '地震',
   landslide: '土砂災害',
   tsunami: '津波',
-  large_scale_fill: '大規模盛土造成地',
-  high_tide: '高潮'
+  large_fill_land: '大規模盛土造成地',
+  high_tide: '高潮',
+  flood_keizoku: '浸水継続時間',
+  naisui: '内水氾濫',
+  kaokutoukai_hanran: '家屋倒壊等氾濫想定区域（氾濫流）',
+  kaokutoukai_kagan: '家屋倒壊等氾濫想定区域（河岸侵食）',
+  avalanche: '雪崩',
 };
 
 /**

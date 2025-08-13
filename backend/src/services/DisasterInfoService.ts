@@ -534,19 +534,19 @@ export class DisasterInfoService implements IDisasterInfoService {
     
     if (info.includes('警戒') || info.includes('危険')) {
       return {
-        type: 'large_scale_fill',
+        type: 'large_fill_land',
         riskLevel: 'high',
         description: `大規模盛土造成地に指定されています。${info}`
       };
     } else if (info.includes('注意')) {
       return {
-        type: 'large_scale_fill',
+        type: 'large_fill_land',
         riskLevel: 'medium',
         description: `大規模盛土造成地の可能性があります。${info}`
       };
     } else if (info === 'あり' || info.includes('あり')) {
       return {
-        type: 'large_scale_fill',
+        type: 'large_fill_land',
         riskLevel: 'medium',
         description: '大規模盛土造成地に該当します。'
       };
@@ -554,7 +554,7 @@ export class DisasterInfoService implements IDisasterInfoService {
     
     // その他の値は medium として扱う
     return {
-      type: 'large_scale_fill',
+      type: 'large_fill_land',
       riskLevel: 'medium',
       description: `大規模盛土造成地の情報があります。${info}`
     };

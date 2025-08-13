@@ -34,7 +34,12 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
       tsunami: '津波情報',
       high_tide: '高潮情報',
       large_fill_land: '大規模盛土情報',
-      landslide: '土砂災害情報'
+      landslide: '土砂災害情報',
+      flood_keizoku: '浸水継続時間情報',
+      naisui: '内水氾濫情報',
+      kaokutoukai_hanran: '家屋倒壊等氾濫想定区域（氾濫流）情報',
+      kaokutoukai_kagan: '家屋倒壊等氾濫想定区域（河岸侵食）情報',
+      avalanche: '雪崩情報',
     };
     return labels[type] || type;
   };
