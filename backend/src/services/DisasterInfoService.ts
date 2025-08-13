@@ -117,7 +117,7 @@ export class DisasterInfoService implements IDisasterInfoService {
   constructor() {
     // ハザードマップAPIの設定を環境変数から読み込み
     this.hazardMapApiConfig = {
-      baseUrl: process.env.HAZARD_MAP_API_URL || 'http://localhost:3001/api/hazard',
+      baseUrl: process.env.HAZARD_MAP_API_URL || 'http://localhost:3001/api/disaster-info/hazard',
       timeout: parseInt(process.env.HAZARD_MAP_API_TIMEOUT || '120000'), // 2分に延長
       headers: process.env.HAZARD_MAP_API_KEY ? {
         'Authorization': `Bearer ${process.env.HAZARD_MAP_API_KEY}`,
