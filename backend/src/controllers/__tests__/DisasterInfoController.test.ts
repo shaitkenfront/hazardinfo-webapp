@@ -71,7 +71,7 @@ describe('DisasterInfoController Integration Tests', () => {
           expect(hazard).toHaveProperty('source');
           expect(hazard).toHaveProperty('lastUpdated');
           
-          expect(['flood', 'earthquake', 'landslide', 'tsunami', 'large_scale_fill']).toContain(hazard.type);
+          expect(['flood', 'earthquake', 'landslide', 'tsunami', 'large_fill_land', 'high_tide', 'flood_keizoku', 'naisui', 'kaokutoukai_hanran', 'kaokutoukai_kagan', 'avalanche']).toContain(hazard.type);
           expect(['low', 'medium', 'high', 'very_high']).toContain(hazard.riskLevel);
         }
       });

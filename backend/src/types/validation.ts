@@ -71,7 +71,7 @@ export function validateHazardInfo(data: any): HazardInfo {
   const { type, riskLevel, description, source, lastUpdated, detailUrl } = data;
 
   // タイプのバリデーション
-  const validTypes = ['flood', 'earthquake', 'landslide', 'tsunami', 'large_scale_fill'];
+  const validTypes = ['flood', 'earthquake', 'landslide', 'tsunami', 'large_fill_land', 'high_tide', 'flood_keizoku', 'naisui', 'kaokutoukai_hanran', 'kaokutoukai_kagan', 'avalanche'];
   if (!validTypes.includes(type)) {
     throw new ValidationError(`Type must be one of: ${validTypes.join(', ')}`, 'type');
   }
