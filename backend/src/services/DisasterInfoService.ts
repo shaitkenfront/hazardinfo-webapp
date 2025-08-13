@@ -33,6 +33,22 @@ interface HazardMapApiResponse {
       max_info: string;
       center_info: string;
     };
+    flood_keizoku: {
+      max_info: string;
+      center_info: string;
+    };
+    naisui: {
+      max_info: string;
+      center_info: string;
+    };
+    kaokutoukai_hanran: {
+      max_info: string;
+      center_info: string;
+    };
+    kaokutoukai_kagan: {
+      max_info: string;
+      center_info: string;
+    };
     tsunami_inundation: {
       max_info: string;
       center_info: string;
@@ -58,6 +74,10 @@ interface HazardMapApiResponse {
         max_info: string;
         center_info: string;
       };
+    };
+    avalanche: {
+      max_info: string;
+      center_info: string;
     };
   };
   status: string;
@@ -302,6 +322,47 @@ export class DisasterInfoService implements IDisasterInfoService {
           detailUrl: 'https://disaportal.gsi.go.jp/'
         });
       }
+
+      // 洪水関連リスク
+      const floodKeizokuInfo = this.parseFloodKeizokuRisk(hazardInfo.flood_keizoku);
+      if (floodKeizokuInfo) {
+        hazardInfos.push({
+          ...floodKeizokuInfo,
+          source: '国土交通省ハザードマップポータルサイト',
+          lastUpdated: currentDate,
+          detailUrl: 'https://disaportal.gsi.go.jp/'
+        });
+      }
+
+      const naisuiInfo = this.parseNaisuiRisk(hazardInfo.naisui);
+      if (naisuiInfo) {
+        hazardInfos.push({
+          ...naisuiInfo,
+          source: '国土交通省ハザードマップポータルサイト',
+          lastUpdated: currentDate,
+          detailUrl: 'https://disaportal.gsi.go.jp/'
+        });
+      }
+
+      const kaokutoukaiHanranInfo = this.parseKaokutoukaiHanranRisk(hazardInfo.kaokutoukai_hanran);
+      if (kaokutoukaiHanranInfo) {
+        hazardInfos.push({
+          ...kaokutoukaiHanranInfo,
+          source: '国土交通省ハザードマップポータルサイト',
+          lastUpdated: currentDate,
+          detailUrl: 'https://disaportal.gsi.go.jp/'
+        });
+      }
+
+      const kaokutoukaiKaganInfo = this.parseKaokutoukaiKaganRisk(hazardInfo.kaokutoukai_kagan);
+      if (kaokutoukaiKaganInfo) {
+        hazardInfos.push({
+          ...kaokutoukaiKaganInfo,
+          source: '国土交通省ハザードマップポータルサイト',
+          lastUpdated: currentDate,
+          detailUrl: 'https://disaportal.gsi.go.jp/'
+        });
+      }
       
       // 津波リスク
       const tsunamiInfo = this.parseTsunamiRisk(hazardInfo.tsunami_inundation);
@@ -344,6 +405,17 @@ export class DisasterInfoService implements IDisasterInfoService {
           source: '国土交通省砂防部',
           lastUpdated: currentDate,
           detailUrl: 'https://www.mlit.go.jp/river/sabo/'
+        });
+      }
+
+      // 雪崩リスク
+      const avalancheInfo = this.parseAvalancheRisk(hazardInfo.avalanche);
+      if (avalancheInfo) {
+        hazardInfos.push({
+          ...avalancheInfo,
+          source: '国土交通省ハザードマップポータルサイト',
+          lastUpdated: currentDate,
+          detailUrl: 'https://disaportal.gsi.go.jp/'
         });
       }
       
@@ -564,6 +636,51 @@ export class DisasterInfoService implements IDisasterInfoService {
     }
     
     return risks;
+  }
+
+  /**
+   * 浸水継続時間リスクをパース
+   */
+  private parseFloodKeizokuRisk(data: { max_info: string; center_info: string }): Pick<HazardInfo, 'type' | 'riskLevel' | 'description'> | null {
+    const info = data.max_info || data.center_info;
+    if (!info || info.includes('想定なし') || info.includes('情報なし')) return null;
+    return { type: 'flood_keizoku', riskLevel: 'medium', description: `浸水継続時間: ${info}` };
+  }
+
+  /**
+   * 内水浸水リスクをパース
+   */
+  private parseNaisuiRisk(data: { max_info: string; center_info: string }): Pick<HazardInfo, 'type' | 'riskLevel' | 'description'> | null {
+    const info = data.max_info || data.center_info;
+    if (!info || info.includes('想定なし') || info.includes('情報なし')) return null;
+    return { type: 'naisui', riskLevel: 'medium', description: `内水による浸水リスク: ${info}` };
+  }
+
+  /**
+   * 家屋倒壊等氾濫想定区域（氾濫流）リスクをパース
+   */
+  private parseKaokutoukaiHanranRisk(data: { max_info: string; center_info: string }): Pick<HazardInfo, 'type' | 'riskLevel' | 'description'> | null {
+    const info = data.max_info || data.center_info;
+    if (!info || info.includes('想定なし') || info.includes('情報なし')) return null;
+    return { type: 'kaokutoukai_hanran', riskLevel: 'high', description: `家屋倒壊等氾濫想定区域（氾濫流）: ${info}` };
+  }
+
+  /**
+   * 家屋倒壊等氾濫想定区域（河岸侵食）リスクをパース
+   */
+  private parseKaokutoukaiKaganRisk(data: { max_info: string; center_info: string }): Pick<HazardInfo, 'type' | 'riskLevel' | 'description'> | null {
+    const info = data.max_info || data.center_info;
+    if (!info || info.includes('想定なし') || info.includes('情報なし')) return null;
+    return { type: 'kaokutoukai_kagan', riskLevel: 'high', description: `家屋倒壊等氾濫想定区域（河岸侵食）: ${info}` };
+  }
+
+  /**
+   * 雪崩リスクをパース
+   */
+  private parseAvalancheRisk(data: { max_info: string; center_info: string }): Pick<HazardInfo, 'type' | 'riskLevel' | 'description'> | null {
+    const info = data.max_info || data.center_info;
+    if (!info || info.includes('該当なし') || info.includes('情報なし')) return null;
+    return { type: 'avalanche', riskLevel: 'high', description: `雪崩危険箇所: ${info}` };
   }
 
 
